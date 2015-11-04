@@ -10,6 +10,7 @@
 
 
 #include "network.h"
+//#include "matrix.h"
 #include "neuron.h"
 #include "region.h"
 #define Hsize 300; // Horizontal Size 
@@ -36,16 +37,32 @@
 
 class pathway{
 	public:
-		pathway(unsigned int hSize , unsigned int vSize, unsigned int region);
+		/*
+		 * Creates the class 
+		 * n_NeuronBaseUnit = # number of Nuerons in Base Unit.. 
+		 * Pathway create the neruons for the base class alone. 
+		 * ie the Base Region . 
+		 *
+		 * The caller class has the responsibility to add the higher class on top
+		 * Functionality Provided for this is 
+		 * addRegion
+		 * getRegion // This returns a pointer to requested region.
+		 */
+		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
 		~pathway();
-		void mapPixelNeuron();
-		network * getNetworkAtRegion(unsigned int region);
+		region * getRegion(unsigned int region);
+		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,double threshold , std::vector<uint8_t> *N);
 		void addRegion();
-
+		void setID(int unsigned id){_id = id;};
+		unsigned int getID(){return _id;};
+		unsigned int getNumRegions(){return _structure->size();};
 	private:
 		unsigned int _hSize ; 
 	        unsigned int _vSize; 	
-		unsigned int _region; 
+		unsigned int _hNetworkSize; 
+		unsigned int _vNetworkSize; 
+		unsigned int _nRegion; 
+		unsigned int _id;
 		std::vector<region*> * _structure; 
 
 };

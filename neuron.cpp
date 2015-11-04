@@ -126,7 +126,20 @@ The handler should call this function again , until it returns a true..
 
 bool neuron::tick()
 {
+   if(_sense)
+   {
+	// We just have to check the input . if the inputbuffer is on. we send an impulse. 
+	_outputBuffer = _inputBuffer; 
+ debugN("ID -> "); debug(_id); debug(" :") ;
+            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
+	    _readyForTick=true;
+	    // FOR LEARNING ...
+	    insertToActivity(_outputBuffer);
+	    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};
 
+    _ticked=true;
+	    return true; // End here.. 
+   }
 
     if (_forced) // No checking.. Used to start network..
     {

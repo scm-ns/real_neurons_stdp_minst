@@ -34,7 +34,7 @@ public:
     void addNeuron();
     void addNeuron(neuron * neu);
     neuron* Neuron(unsigned int pos);
-    unsigned int getNumNeurons(){ return _nNeurons; };
+    unsigned int getNumNeurons(){ return _neurons->size(); };
     void connect(int n1, int n2, double weight = 1);
     void setNeuronDebug(bool f);
     void setNetworkDebug(bool f);

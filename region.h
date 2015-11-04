@@ -6,10 +6,10 @@
 class region: public error
 {
 	public:
-		region(unsigned int nNetworks = 0);
+		region(unsigned int nNetworks = 0, unsigned int nNeuronsNetwork = 0);
 		~region(); // Should I use smart pointers ? Difficulties with arm compiler may be?
-	 	network* Network(int pos);// Gives us the pointer to network at position pos. 
-		unsigned int getNumNetworks(){ return _nNetworks;};
+	 	network* Network(unsigned int pos);// Gives us the pointer to network at position pos. 
+		unsigned int getNumNetworks(){ return _structure->size();};
 		void setId(unsigned int id){ _id = id;};
 		unsigned int getID(){return _id;};
 		/*Should I call systemTick on each network ? Is the order necessary 

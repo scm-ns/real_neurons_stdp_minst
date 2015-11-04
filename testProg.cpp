@@ -20,7 +20,10 @@ int main(int argc, char** argv )
         return -1;
     }
     namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", image);
+	Mat im_gray;
+	cvtColor(image,im_gray,CV_RGB2GRAY);
+
+    imshow("Display Image", im_gray);
 
     waitKey(0);
 

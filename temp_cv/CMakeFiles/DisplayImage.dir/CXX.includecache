@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/sandeep/Desktop/typeZERO/Vision/visionSystem_v1/temp_cv/testProg.cpp
+stdio.h
+-
+opencv2/opencv.hpp
+-
+iostream
+-
+

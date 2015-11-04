@@ -1,13 +1,17 @@
 #include "region.h"
 
 
-region::region(unsigned int nNetworks):error(false)
+region::region(unsigned int nNetworks, unsigned int nNeuronsNetwork):error(false)
 {
 	if(__debug__){debugN("CREATED REGION");};
 	_structure = new std::vector<network*>(nNetworks); 
 	_nNetworks = nNetworks;
 	//let id be set by the setID method. We will set it to 0 
-	_id = 0 ; 
+	_id = 0 ;
+       for(unsigned int i = 0 ; i < _structure->size();i++)
+       {
+	   _structure->at(i) = new network(nNeuronsNetwork);
+       }	       
 }
 
 
@@ -33,3 +37,7 @@ bool region::regionTick()
 
 
 
+network* region::Network(unsigned int pos)
+{
+	return _structure->at(pos); // THE CALLER SHOULD BE SENSIBLE IN CALLING THIS.. 
+}
