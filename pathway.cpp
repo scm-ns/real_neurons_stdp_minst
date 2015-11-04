@@ -27,7 +27,6 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
 }
 
 /*
- * horizontal -> width
  *
  *
  */
@@ -38,7 +37,17 @@ unsigned int neuronHorizontalPos = 0 ;
 unsigned int networkVerticalPos = 0 ;
 unsigned int neuronVerticalPos = 0 ; 
 unsigned int n_networkHorizontal = _hSize/_hNetworkSize;
-//unsigned int n_networkVertical = _vSize/_vNetworkSize;
+unsigned int n_networkVertical = _vSize/_vNetworkSize;
+
+
+	// FOR USE BY PATHWAY IN DETERMINING HOW MANY NETWORKS ARE PRESENT 
+	// AND HOW TO MAP THEM SO AS TO GET LOCAL NETWORKS 
+	// LATER MAPPING OF REGIONS IS DONE BY BUILD IN NFE_L
+	// PATHWAYS HANDLES ONLY THE REGION 0 		
+_structure->at(0)->setNumHorizontalNetworks(n_networkHorizontal);
+_structure->at(0)->setNumVerticalNetworks(n_networkVertical);
+
+// GO THROUGH EACH ELEMENTS IN THE VECTOR AND MAP IT TO NEURONS. 
 for(unsigned int i = 0; i < vertical; i++)
 {
     for(unsigned int j = 0; j < horizonal; j++)
@@ -49,7 +58,7 @@ for(unsigned int i = 0; i < vertical; i++)
 	networkVerticalPos = i / _vNetworkSize;
    	neuronHorizontalPos = j % _hNetworkSize; 
 	neuronVerticalPos = i % _vNetworkSize; 	
-
+	
     _structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->sensoryNeuron();
 	// NEURON SET UP AS A SENSORY NEURON. 
 	// WE SEND STIMULUS IF THE val crosses a threshold ? 
@@ -64,7 +73,7 @@ for(unsigned int i = 0; i < vertical; i++)
 
 }
 
-region * pathway::getRegion(unsigned int region)
+region * pathway::Region(unsigned int region)
 {
 	return _structure->at(region); 
 }

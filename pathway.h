@@ -50,7 +50,7 @@ class pathway{
 		 */
 		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
 		~pathway();
-		region * getRegion(unsigned int region);
+		region * Region(unsigned int region);
 		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,double threshold , std::vector<uint8_t> *N);
 		void addRegion();
 		void setID(int unsigned id){_id = id;};
