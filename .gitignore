@@ -1,0 +1,6 @@
+#ignoring the swp files 
+
+*.swp
+*.o
+*.exe
+*.swo
