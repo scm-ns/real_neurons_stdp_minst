@@ -52,10 +52,11 @@ class pathway{
 		~pathway();
 		region * Region(unsigned int region);
 		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,double threshold , std::vector<uint8_t> *N);
-		void addRegion();
+		void addRegion(unsigned int nNetworks);
 		void setID(int unsigned id){_id = id;};
 		unsigned int getID(){return _id;};
 		unsigned int getNumRegions(){return _structure->size();};
+	
 	private:
 		unsigned int _hSize ; 
 	        unsigned int _vSize; 	

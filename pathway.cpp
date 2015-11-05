@@ -78,9 +78,9 @@ region * pathway::Region(unsigned int region)
 	return _structure->at(region); 
 }
 
-void pathway::addRegion()
+void pathway::addRegion(unsigned int nNetworks)
 {
-       region* reg = new region();
+       region* reg = new region(nNetworks);
        _structure->push_back(reg);
        _nRegion++;
 }

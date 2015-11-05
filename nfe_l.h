@@ -30,20 +30,24 @@
 class nfe_l
 {
 	public:
-		nfe_l(pathway * pw,unsigned int fms = 9);
+		nfe_l(pathway * pw,unsigned int fms = 1);
 		~nfe_l();
-		pathway* build();
+		pathway* extend();
 		/*
 		 * After we have extracted all features in region we move to the next higher region
-		 *
+		 * Pathway should not have this. The number of neurons in the next layer should 
+		 * be decided by nfe_l class. 
+		 * The user will force on over ride telling it to move to the next layer . 
 		 */
-		void moveNextRegion(){ _pathway->addRegion();_currentRegion++;}; 
+		void moveNextRegion(); 
+		float informationAdded(){ return (float)_informationAdded/_pathway->Region(_currentRegion)->getNumNetworks();};
 	private:
 		pathway * _pathway;
 		std::vector<featureKeeperVec*> * _patternInPathway;
 	       	unsigned int _currentRegion; // This starts are zero and goes up 
-		unsigned int _frameSize; // This decided where it is 9x9 or 4x4 
+		unsigned int _frameSize; // This decided where to take 1 network to form connections 						// or 4 networks.  
 		unsigned int _informationAdded; 
+		unsigned int _nNetworksMerged; // This determines the number of networks that are combined.. 
 }; 
 
 
