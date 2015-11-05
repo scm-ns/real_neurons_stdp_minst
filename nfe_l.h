@@ -48,8 +48,39 @@ class nfe_l
 		unsigned int _frameSize; // This decided where to take 1 network to form connections 						// or 4 networks.  
 		unsigned int _informationAdded; 
 		unsigned int _nNetworksMerged; // This determines the number of networks that are combined.. 
-}; 
+	
+		// USED TO DECIDE WHETHER TO ADD A PATTER OR NOT 
+		// HELPS DECIDE HOW MANY TIMES A PATTERN IS SEEN BEFORE WE CREATE A NEURON FOR IT
+		// FOR THE FIRST LAYER LET THIS BE 20 OR SO , FOR HIGHER LAYERS
+		// THIS HAS TO BE LOWER.
+		// reduce by 1 in each region . 
+		// we remember patterns only if we have seen it multiple times.  
+		unsigned int _regionPatternNeuronThreshold; // threshold to cross for a pattern to be used for the creation of a neuron . This will be region depended, 
+		// Local layers will add only after seeing a pattern many times, higher layers will add on seeing the pattern not so many times. 
+	
+		// This will decide how much similairty we will allow between patterns 
+		// If a pattern is similar to another pattern we do not consider it as a seperate 
+		// pattern by rather map if to the older pattern this pattern is similar to , 
+		// and increasing the frequency of the older pattern .  
+		// This will also be region depended , as in lower regions slightly disimilar 
+		// features can be ignored as the major component of that feature is already 
+		// being captured . but in the higer levels , even small disimilarity might be 
+		// comming from 1000's of neurons in the lower layers. 
+		float _similarityThreshold;	
 
+		// HOW ARE THEY USED TOGETHER ? 
+		// is the similarity is low we start keeping track of the pattern 
+		// and if we see this pattern multiple times , 
+		// we create a neuron corresponsing to this pattern
+		// issues 
+		//  : how to handle the initial case where there are no neurons 
+		//  : how to hangel the case when there are more than 320 neurons from
+		//  : which you are trying to create the features . 
+		//  : also for 9 bits we are storing 320 bits. inefficeint 
+		//  : solution would be to create seperate structures . 
+		//  : some which should more bits others less. 
+		//  : 40 bytes for each network. That could be inefficent. 
+}; 
 
 
 

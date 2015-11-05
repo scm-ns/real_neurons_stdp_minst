@@ -46,8 +46,15 @@ class pathway{
 		 * The caller class has the responsibility to add the higher class on top
 		 * Functionality Provided for this is 
 		 * addRegion
-		 * getRegion // This returns a pointer to requested region.
-		 */
+		 * getRegioni
+		 * // This returns a pointer to requested region.
+		//
+		//BEWAR CALLER CLASS MUST CREATE THE NEW REGIONS 
+		//IT REQUIRES , IT SHOULD CREATE THE REGIONS AND 
+		//MAKE THE POINTER IN THIS CLASS POINT TO IT 
+		//FOR THE PROGRAM TO BE ABLE TO USE THE NETWORKS . 
+	       
+       	       */
 		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
 		~pathway();
 		region * Region(unsigned int region);

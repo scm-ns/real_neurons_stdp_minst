@@ -73,7 +73,12 @@ pathway* nfe_l::extend()
  	if(_currentRegion == 0 )
 	{
 		// One to one mapping from region 0 to region 1 . Start simple. .. 
+		if(_pathway->getNumRegions() <=  _currentRegion + 1)
+		{
+		// One to one mapping from region 0 to region 1 . Start simple. .. 
 		_pathway->addRegion(_pathway->Region(_currentRegion)->getNumNetworks()); // Creating Region 1 ... 
+		} // THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
+		
 		// We set the size of the new region . This will help in mapping for higher levels.
 		_pathway->Region(_currentRegion + 1)->setNumVerticalNetworks(_pathway->Region(_currentRegion)->getNumVerticalNetworks()); 
 		_pathway->Region(_currentRegion + 1)->setNumHorizontalNetworks(_pathway->Region(_currentRegion)->getNumHorizontalNetworks()); 
@@ -89,7 +94,14 @@ pathway* nfe_l::extend()
 		// Go through the networks in the base layer and fill the higher layers..
 		for (unsigned int i = 0 ; i < _pathway->Region(_currentRegion)->getNumNetworks();i++)
 		{
-				// Holds the features of the current network
+			// FOR ALL THE NETWORKS IN THE CURRENT REGION WE CREATE ANOTHER VECTOR 
+			// IN THE CURRENT REGION + 1 . FOR THE MAPPING FROM REGION 0 TO REGION 1 
+			// THIS IS ONE TO ONE , FOR HIGHER 
+			// REGIONS THIS MAPPING WILL BE DIFFERENT 
+			// THE CREATION OF THE NETWORKS IS HANDLED BY THE CONSTRUCTOR OF THE 
+			// REGION .. 		
+		
+			// Holds the features of the current network
 			_patternInPathway->at(_currentRegion)->_structure->at(i) = new featureKeeper();
 			feature *temp = new feature();// For each netwrok in each region we set up a featureKeeper. 
 			// We assume a new pattern will be seen . so we create that network
@@ -125,8 +137,13 @@ pathway* nfe_l::extend()
 // IF THE CURRENT REGION IS NOT 1 , THEN FOR REGION N+1 WE HAVE TO COMBINE 4 NETWORKS IN REGION N
 // INTO A SINGLE REGION IN REGION N + 1 . THE PROBLEMS ARE , WILL THE TOTAL NUMBER OF NUERONS IN THE 4 NETWORKS BE LESS THAN THE MAXIMUM NUMBER OF PATTENS . AND IS THIS A GOOD DESIGN ? 
 
-		// Region _currentRegion + 1 is created. 
-	_pathway->addRegion(_pathway->Region(_currentRegion)->getNumNetworks()/_nNetworksMerged);
+		// One to one mapping from region i  to region i+1 . Start simple. .. 
+		if(_pathway->getNumRegions() <=  _currentRegion + 1) // We create a new layer only if numRegions is less than the _current Region
+		{
+			// One to _nNetworksMerged  mapping from region 0 to region 1 . Start simple. .. 
+			_pathway->addRegion(_pathway->Region(_currentRegion)->getNumNetworks()/_nNetworksMerged);
+		} // THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
+		// Region _currentRegion + 1 is created. or may be it was already crated in previous steps.  
 
 	_patternInPathway->push_back(new featureKeeperVec); 
 		// This will store the activity pattern of all the networks in 
@@ -135,6 +152,8 @@ pathway* nfe_l::extend()
 	// set the side of the new region . Used to map the networks properly
 	_pathway->Region(_currentRegion + 1)->setNumHorizontalNetworks(_pathway->Region(_currentRegion)->getNumHorizontalNetworks()/2); // Each layer we go up the size reduces by 2 . 
 
+	_pathway->Region(_currentRegion + 1)->setNumVerticalNetworks(_pathway->Region(_currentRegion)->getNumVerticalNetworks()/2); // Each layer we go up the size reduces by 2 . 
+	
 	// COllects the 4 Networks into a unit . 
 	std::vector<network*> *unitNetworks = new std::vector<network*>(_nNetworksMerged);
 	// Now map the 4 networks into this unit... 
@@ -155,7 +174,7 @@ pathway* nfe_l::extend()
 	//  	// Draw Pictures ... 
 	
 	
-	// fea is created to unsure proper mapping to featureKeeperVec	
+	// feaNetworkIndex is created to unsure proper mapping to featureKeeperVec	
 	// the 4 units will map to a single featureKeeper present in location fea of featureKeeperVec
 	for(unsigned int i = 0 , feaNetworkIndex = 0; i < _pathway->Region(_currentRegion)->getNumNetworks()/2;i+=2, feaNetworkIndex++)
 	{
@@ -218,11 +237,16 @@ pathway* nfe_l::extend()
 		{
 			// We look at how many times we have seen this pattern 
 			// if the frequency is high , then I create a neuron .
-			if(_patternInPathway->at(_currentRegion)->_structure->at(feaNetworkIndex)->getFrequency(patternIndex) > _regionPatternThreshold)
+			if(_patternInPathway->at(_currentRegion)->_structure->at(feaNetworkIndex)->getFrequency(patternIndex) >= _regionPatternNeuronThreshold)
 			{
-
-
-
+				// IF THE PATTERN HAS NOT BEEN CONVERTED INTO A NEURON. 
+				// THEN WE ADD THE NEURON INTO THE NETWORK 
+				if( ! _patternInPathway->at(_currentRegion)->_structure->at(feaNetworkIndex)->hasNeuronCreatedFromPatter(patternIndex))
+				{
+					_pathway->Region(_currentRegion +1)->Network(feaNetworkIndex)->addNeuron(newPattern);
+					_informationAdded++;
+				}
+				_patternInPathway->at(_currentRegion)->_structure->at(feaNetworkIndex)->neuronCreatedFromPattern(patternIndex);
 
 			}
 

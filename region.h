@@ -11,7 +11,13 @@ class region: public error
 		// HOW MANY REGIONS ARE REQUIRED.
 		// THE NUMBER OF NEURONS IN NETWORK CAN BE CHANGED 
 		// BECAUSE WE CAN OBTAIN A POINTER TO THE NETWORK AND
-		// ADD THE NEURON TO THAT NETORK...   
+		// ADD THE NEURON TO THAT NETORK...  
+		//
+		// THE CREATION THE NETWORKS THAT THE CLASS POINTS TO HANDLED 
+		// BY THIS CLASS ITSELF , NEW NETWORKS DO NOT HAVE TO CREATED 
+		// AND LINKED IN CALLER CLASSES .. 
+		//
+		//
 		region(unsigned int nNetworks, unsigned int nNeuronsNetwork = 0 );
 		~region(); // Should I use smart pointers ? Difficulties with arm compiler may be?
 	 	network* Network(unsigned int pos);// Gives us the pointer to network at position pos. 
