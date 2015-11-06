@@ -1,7 +1,7 @@
 #include "network.h"
 
 
-network::network(int nNeurons)
+network::network(int nNeurons):error(false)
 {
     _id  = 0 ; 
     _nNeurons = nNeurons;
@@ -26,10 +26,9 @@ network::~network()
         delete _neurons->at(i);
     }
     delete _neurons;
+    _neurons = NULL;
 
 }
-
-
 
 /*
 Keeps on doing the systemTick , until all neurons has responded to tick and has progressed to the next state..
@@ -89,13 +88,13 @@ bool network::systemTick()
 void network::addNeuron()
 {
     neuron *n = new neuron();
+    n->setId(_nNeurons);
     _nNeurons++;
     n->setDebug(__debug__);
-    _neurons->push_back(n);
-
+    _neurons->push_back(n);{
     if (__debug__) { debugN("ID "); debug(_id); debug("NEURON ADDED"); debug("NEURON -> ID"); debug(_neurons->at(_nNeurons-1)->getId()); }
+	}
 }
-
 
 void network::addNeuron(neuron* neu)
 {
@@ -147,36 +146,3 @@ void network::setNetworkDebug(bool f)
     }
 }
 
-void network::setNeuronDebug(bool f)
-{
-    for (auto i : *_neurons)
-    {
-        i->setDebug(f);
-    }
-}
-
-
-
-void network::run(int ms)
-{
-    std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::now();
-
-    bool period = false;
-    int diffI = 0, diffPrev = 0;
-    while (_run)
-    {
-        auto diff = std::chrono::system_clock::now() - timePoint;
-        diffI = std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
-        if (__debug__){ debugN("RUN"); debug(diffI); debug(diffI % ms); }
-
-        if (diffI % ms == 0 && diffI != diffPrev) // Produces 20 milliseconds ticks..
-        {
-            systemTick();
-            period = true;
-            timePoint = std::chrono::system_clock::now();
-        }
-
-        diffPrev = diffI;
-    }
-
-}

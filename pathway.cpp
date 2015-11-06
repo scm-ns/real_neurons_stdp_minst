@@ -27,7 +27,7 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
 }
 
 /*
- *
+ * 
  *
  */
 void pathway::mapVectorNeuron(unsigned int horizonal , unsigned int vertical , unsigned int stride ,double threshold , std::vector<uint8_t> *N)

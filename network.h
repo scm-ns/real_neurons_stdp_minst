@@ -2,27 +2,22 @@
 #define NETWORK_H
 
 #include "neuron.h"
-
+#include "error.cpp"// NOT NEEDED present  FROM NEURON.h 
 #include <vector>
 #include <iostream>
 #include <tuple>
 #include <functional>
 #include <chrono>
-typedef std::chrono::steady_clock::duration duration;
 
 /*
 This will handle the structure of the neuron connections.. How ?
-
 Keep a vector of neurons with ids.
-
 user will add the neuron .
-
 Then say connect(1,2);
-
 */
 
 
-class network
+class network: public error
 {
 
 public:
@@ -40,7 +35,6 @@ public:
     void setNetworkDebug(bool f);
     void runSetup(bool t) { _run = t; };
     void setStarter(bool t){_starter = t;};
-    void run(int ms);
     void setID(unsigned int a) {_id =a ; }
     //LEARNING BAD CODE> KEEP PRIVATE THINGS PRIVATE.			//TODO CORRECT IT.	  
         std::vector<neuron*>* getNeurons(){ return _neurons;};
@@ -54,16 +48,7 @@ private:
     bool _networkTicked;
     std::vector<neuron*> * _neurons;
 
-    bool __debug__;
 
-    template <typename T>
-    static void debugN(const T* p){ std::cout << std::endl << "NETWORK-> " << p; }
-    template <typename T>
-    static void debugN(const T p){ std::cout << std::endl << "NETWORK-> " << p; }
-    template <typename T>
-    static void debug(const T* p){ std::cout << " " << p; }
-    template <typename T>
-    static void debug(const T p){ std::cout << " " << p; }
 };
 
 

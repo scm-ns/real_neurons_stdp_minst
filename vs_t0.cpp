@@ -1,9 +1,25 @@
-#include <stdio.h>
-#include <opencv2/opencv.hpp>
-#include <iostream>
-using namespace cv;
+/*
+ *Visual System of typeZERO.
+ *
+ * Only a function , not a class. This joints together the work done by different strucutres and provides the result. This is the driver ?.........
+ *
+ */
 
-int main(int argc, char** argv )
+
+/* Why do we need to create a class ? Why not do it in a loop ? 
+ *
+ *
+ *
+ */ 
+#include "nfe_l.h"
+#include <opencv2/opencv.hpp>
+
+#define HEIGHT 300
+#define WIDTH 300
+
+using namespace cv ; 
+
+int main(int argc , char ** argv)
 {
 	printf("PROGRAM STARTS");
     if ( argc != 2 )
@@ -27,34 +43,24 @@ int main(int argc, char** argv )
 	int width = im_gray.cols;
 	int height = im_gray.rows;
 
-	std::vector<uint8_t> vec(0);
+	std::vector<uint8_t>* vec = new std::vector<uint8_t>(0);
 	int _stride = im_gray.step;//in case cols != strides
 	for(int i = 0; i < height; i++)
 	{
 	    for(int j = 0; j < width; j++)
 	    {
 		uint8_t val = myData[ i * _stride + j];
-		vec.push_back(val);	
-	   //	printf("%i", vec.at(i * _stride + j));	
-	 //  	printf("%i \n", val);	
+		vec->push_back(val);	
 	    }
 	}
 
-	for(int i = 0; i < height; i++)
-	{
-	    for(int j = 0; j < width; j++)
-	    {
-//mjj		uint8_t val = myData[ i * _stride + j];//		vec.push_back(val);	
-	   //	printf("%i \n", vec.at(i * _stride + j));	
-	 //  	printf("%i \n", val);	
-	    }
-	}
 
-	printf("%f",mean(im_gray).val[0]);
-   imshow("Display Image", im_gray);
+	pathway* visionSystem = new pathway(300,300,3,3);
+	visionSystem->mapVectorNeuron(width,height,_stride,mean(im_gray).val[0],vec);
+	nfe_l neuronFrameExtended(visionSystem);
+	neuronFrameExtended.extend();
+     return 0 ; 
 
-    waitKey(0);
 
-    return 0;
 }
 

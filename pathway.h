@@ -1,3 +1,8 @@
+#ifndef PATHWAY_H
+#define PATHWAY_H
+
+
+
 /*
  *
 	We let retina be a sub class of network and add on more functionality and restrictions.. 
@@ -10,7 +15,6 @@
 
 
 #include "network.h"
-//#include "matrix.h"
 #include "neuron.h"
 #include "region.h"
 #define Hsize 300; // Horizontal Size 
@@ -56,7 +60,6 @@ class pathway{
 	       
        	       */
 		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
-		~pathway();
 		region * Region(unsigned int region);
 		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,double threshold , std::vector<uint8_t> *N);
 		void addRegion(unsigned int nNetworks);
@@ -87,13 +90,4 @@ class pathway{
 
 
 
-
-
-
-
-
-
-
-
-
-
+#endif

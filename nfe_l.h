@@ -1,3 +1,23 @@
+#ifndef NFE_L_H
+#define NFE_L_H
+
+
+
+
+#define N_NETWORKS_MERGED 4
+// NUMBER OF NETWORKS MERGED IN ABOVE LAYERS
+#define INITIAL_REGION_SIMILARITY_THRESHOLD 0.2
+#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 20
+#define NEXT_REGION_SIMILARITY_THRESHOLD_INCREASE 0.01 
+// FOR HIGHER REGIONS WE INCREASE THE SIMILARITY THRESHOLD
+#define NEXT_REGION_PATTERN_TO_NEURON_FREQUENCY_DECREASE 1
+
+
+
+
+
+
+
 /*
  *
  *This class is passed a pathway  and this will create the connection upwards. 
@@ -22,16 +42,25 @@
  * THIS SHOULD BE THE TERMINATION CRITERION . 
  * NOW IN A REGION IF WE INSERT MANY PATTERN IN THE NETWORKS THEN WE SHOULD NOT STOP
  * * BUT IF NO MORE PATTERNS ARE BEING ADDED , OR MAY BE ONLY A FEW PATTERNS ARE BEING
- * ADDED  THEN WE STOP , SO HOW TO KEEP TRACK OF IF NEW PATTERNS ARE BEING ADDED ? 
- * */
+ * ADDED  THEN WE STOP , SO HOW TO KEEP TRACK OF IF NEW PATTERNS ARE BEING ADDED ?  * */
 
 #include "pathway.h"
+#include "neuron.h"
+#include "network.h"
+#include "region.h"
+
+
 #include "featureKeeper.h"
+#include "feature.h"
+#include "featureKeeperVec.h"
 class nfe_l
 {
 	public:
-		nfe_l(pathway * pw,unsigned int fms = 1);
-		~nfe_l();
+		nfe_l(pathway * pw); // nfe_l is linked to pathway. 
+					// To increase the regions in pathway 
+					// call moveNextRegion , but do this 
+					// only after extend has been called multiple
+					// times to extract all the features 
 		pathway* extend();
 		/*
 		 * After we have extracted all features in region we move to the next higher region
@@ -40,13 +69,19 @@ class nfe_l
 		 * The user will force on over ride telling it to move to the next layer . 
 		 */
 		void moveNextRegion(); 
-		float informationAdded(){ return (float)_informationAdded/_pathway->Region(_currentRegion)->getNumNetworks();};
+		float informationAdded(){ return (float)_informationAddedDuringExtention/_pathway->Region(_currentRegion)->getNumNetworks();};
 	private:
 		pathway * _pathway;
 		std::vector<featureKeeperVec*> * _patternInPathway;
 	       	unsigned int _currentRegion; // This starts are zero and goes up 
-		unsigned int _frameSize; // This decided where to take 1 network to form connections 						// or 4 networks.  
-		unsigned int _informationAdded; 
+// 		unsigned int _frameSize; // This decided where to take 1 network to form connections 						// or 4 networks.  
+
+		// INFORMATION MEASURES 	
+		unsigned int _informationAddedDuringExtention; 
+		unsigned int _informationRepeatedDuringExtention;
+		unsigned int _neuronAddedDuringExtention;
+		
+		
 		unsigned int _nNetworksMerged; // This determines the number of networks that are combined.. 
 	
 		// USED TO DECIDE WHETHER TO ADD A PATTER OR NOT 
@@ -55,7 +90,8 @@ class nfe_l
 		// THIS HAS TO BE LOWER.
 		// reduce by 1 in each region . 
 		// we remember patterns only if we have seen it multiple times.  
-		unsigned int _regionPatternNeuronThreshold; // threshold to cross for a pattern to be used for the creation of a neuron . This will be region depended, 
+
+		unsigned int _regionPatternToNeuronFrequency; // threshold to cross for a pattern to be used for the creation of a neuron . This will be region depended, 
 		// Local layers will add only after seeing a pattern many times, higher layers will add on seeing the pattern not so many times. 
 	
 		// This will decide how much similairty we will allow between patterns 
@@ -66,7 +102,7 @@ class nfe_l
 		// features can be ignored as the major component of that feature is already 
 		// being captured . but in the higer levels , even small disimilarity might be 
 		// comming from 1000's of neurons in the lower layers. 
-		float _similarityThreshold;	
+		float _regionSimilarityThreshold;	
 
 		// HOW ARE THEY USED TOGETHER ? 
 		// is the similarity is low we start keeping track of the pattern 
@@ -91,4 +127,4 @@ class nfe_l
 
 
 
-
+#endif

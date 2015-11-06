@@ -1,8 +1,10 @@
+#ifndef REGION_H
+#define REGION_H
+
 #include <vector>
 #include "network.h"
 #include "neuron.h"
-#include "debug.h"
-
+#include "error.cpp"
 class region: public error
 {
 	public:
@@ -50,3 +52,6 @@ class region: public error
 		unsigned int _nVerticalNetworks ; // COL 
 
 };
+
+
+#endif

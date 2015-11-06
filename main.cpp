@@ -1,6 +1,7 @@
 #include <stdlib.h> 
 #include <unistd.h>
 #include "network.h"
+#include "neuron.h"
 
 int main(int argc , char* argv[])
 {
@@ -24,15 +25,16 @@ int main(int argc , char* argv[])
 	cortex->connect(5,7,0.3);
 	cortex->connect(4,7,0.01);
 	cortex->connect(1,7,0.2);
-
-
-	 network * cortex_2 = new network(8);
+	
+	
+		neuron n1(*cortex->Neuron(2));
+	network * cortex_2 = new network(8);
 	 cortex_2->setStarter(true);
 	cortex_2->setID(2);
 	cortex_2->setNeuronDebug(1);
 	cortex_2->setNetworkDebug(1);
 
-	cortex_2->Neuron(1)->connectInterNetwork(cortex->Neuron(4));
+	cortex_2->Neuron(1)->connectNeuron(cortex->Neuron(4));
 	cortex_2->connect(1,2,0.6);
 	cortex_2->connect(2,3,0.9);
 
@@ -40,13 +42,13 @@ cortex_2->Neuron(4)->sensoryNeuron();
 	cortex_2->connect(4,5);
 	cortex_2->connect(5,6);
 	cortex_2->connect(6,7);
-while(1)
+ while(1)
 {
-	cortex_2->Neuron(4)->stimulus();
-	cortex->systemTick();	
-	cortex_2->systemTick();	
+       cortex_2->Neuron(4)->stimulus();
+       cortex->systemTick();	
+       cortex_2->systemTick();	
 }
-  	return 0 ; 
+ 	return 0 ; 
 }
 
 

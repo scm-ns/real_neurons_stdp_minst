@@ -1,17 +1,22 @@
-#include <vector>
-#include <iostream>
+#ifndef FEATURE_H
+#define FEATURE_H
+
+
 #include <bitset>
 
-class feature{
+#define maxNumPattern 320
+
+class  feature{ // Feature Extractor
 	public:
-		int size; 
-
-
-	private:
-		std::vector<bool> * activity; // inefficient , but no choice now.. //
-		std::bitset<size> A;
-
-
-
-
+	std::bitset<maxNumPattern> pattern;
+	short frequency; 
+	bool added; // This keeps track of whether we have moved a pattern into a neuron.  
+	feature()
+	{
+		frequency = 0 ; 
+		added = false ; // To make sure that nothing starts out undefined.
+	}
 };
+
+
+#endif
