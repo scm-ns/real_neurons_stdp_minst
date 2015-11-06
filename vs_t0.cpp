@@ -12,11 +12,14 @@
  *
  */ 
 #include "nfe_l.h"
+#include "pathway.h"
 #include <opencv2/opencv.hpp>
 
-#define HEIGHT 300
-#define WIDTH 300
-
+#define FOVEA_HEIGHT 300
+#define FOVEA_WIDTH 300		
+#define FOVEA_STRIDE FOVEA_WIDTH - 1
+#define nNEURONS_HORIZONTAL 3 
+#define nNEURONS_VERTICAL 3 
 using namespace cv ; 
 
 int main(int argc , char ** argv)
@@ -43,24 +46,66 @@ int main(int argc , char ** argv)
 	int width = im_gray.cols;
 	int height = im_gray.rows;
 
-	std::vector<uint8_t>* vec = new std::vector<uint8_t>(0);
+	std::vector<short>* vec = new std::vector<short>(0);
 	int _stride = im_gray.step;//in case cols != strides
 	for(int i = 0; i < height; i++)
 	{
 	    for(int j = 0; j < width; j++)
 	    {
-		uint8_t val = myData[ i * _stride + j];
+		short val = myData[ i * _stride + j];
 		vec->push_back(val);	
+	//	printf("%d",val);
 	    }
 	}
 
 
-	pathway* visionSystem = new pathway(300,300,3,3);
-	visionSystem->setDebug(true);
-	visionSystem->mapVectorNeuron(width,height,_stride,mean(im_gray).val[0],vec);
+	// NOW WE CREATE THE SECTIONS THROUGH WHICH WE WANT TO MOVE .. 
+
+	pathway* visionSystem = new pathway(FOVEA_WIDTH,FOVEA_HEIGHT,nNEURONS_HORIZONTAL ,nNEURONS_VERTICAL );
+	visionSystem->setDebug(false);
+	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
+	visionSystem->regionTick(0);
 	nfe_l neuronFrameExtended(visionSystem);
 	neuronFrameExtended.extend();
-     return 0 ; 
+		
+	// Now we go over a new portion of the image .. 
+
+	for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical++)
+	{	
+		for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal++)	
+		{
+			std::cout << "GOING OVER NEXT PATTERN" << std::endl;
+			std::vector<short> * vecFovea = new std::vector<short>(0);
+			for(int x = imageIndexVertical ; x < FOVEA_HEIGHT + imageIndexVertical; x++)
+			{
+				for(int y = imageIndexHorizontal ; y < FOVEA_WIDTH + imageIndexHorizontal ; y++)
+				{
+				    vecFovea->push_back(vec->at( x * (FOVEA_STRIDE) + y)); // This creates a vector with the same size as fovea
+				}
+			}
+			
+			visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vecFovea);
+			visionSystem->regionTick(0);
+			neuronFrameExtended.extend();
+		}	
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	return 0 ; 
 
 
 }

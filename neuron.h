@@ -27,7 +27,7 @@ enum FIRINGBIT
 class neuron : public error
 {
 public:
-    neuron();
+    neuron(unsigned int id = 0);
     ~neuron();
     neuron(const neuron &n);
     neuron & operator=(const neuron &n);

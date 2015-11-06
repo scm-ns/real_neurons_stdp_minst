@@ -10,7 +10,7 @@ region::region(unsigned int nNetworks, unsigned int nNeuronsNetwork):error(false
 	_id = 0 ;
        for(unsigned int i = 0 ; i < _structure->size();i++)
        {
-	   _structure->at(i) = new network(nNeuronsNetwork);
+	   _structure->at(i) = new network(nNeuronsNetwork, i);
        }	       
 }
 
@@ -39,5 +39,9 @@ bool region::regionTick()
 
 network* region::Network(unsigned int pos)
 {
+	if(pos >= _structure->size())
+	{
+		std::cout << "ERROR : CALLING NON EXISTANT NETWORK" << std::endl;
+	}
 	return _structure->at(pos); // THE CALLER SHOULD BE SENSIBLE IN CALLING THIS.. 
 }

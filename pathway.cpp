@@ -30,7 +30,7 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
  * 
  *
  */
-void pathway::mapVectorNeuron(unsigned int horizonal , unsigned int vertical , unsigned int stride ,double threshold , std::vector<uint8_t> *N)
+void pathway::mapVectorNeuron(unsigned int horizonal , unsigned int vertical , unsigned int stride ,short threshold , std::vector<short> *N)
 {
 unsigned int networkHorizontalPos = 0 ;
 unsigned int neuronHorizontalPos = 0 ;
@@ -56,36 +56,77 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
 
 
 // GO THROUGH EACH ELEMENTS IN THE VECTOR AND MAP IT TO NEURONS. 
-for(unsigned int i = 0; i < vertical; i++)
-{
-    for(unsigned int j = 0; j < horizonal; j++)
-    {
-        uint8_t val = N->at( i * stride + j);
+	short val = 0 ; 
+	for(unsigned int i = 0; i < horizonal; i++)
+	{
+	    for(unsigned int j = 0; j < vertical; j++)
+	    {
+		if(i * stride + j >= N->size())
+		{
+			if(__debug__)
+			{
+
+				debugN("Error Index out of bounds") ; debug(N->size());
+				debug(i * stride + j);
+			}
+		}
+		else
+		{
+			if(__debug__)
+			{
+
+			//	debugN("Inserting element");
+			}
+			val = N->at(i*stride + j);
+
+
+		}
+	//if(__debug__)
+	//{
+	//   error::debugN("MAPPING VECTOR VALUES TO NEURONS");
+	//   error::debug("NUMBER OF ELEMENTS IN VECTOR");error::debug(N);
+	//}
+
 	// FIRST MAP TO NETWORK ,  THEN TO THE NEURON	
-	networkHorizontalPos = j /_hNetworkSize;
-	networkVerticalPos = i / _vNetworkSize;
-   	neuronHorizontalPos = j % _hNetworkSize; 
-	neuronVerticalPos = i % _vNetworkSize; 	
-	
-    _structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->sensoryNeuron();
-	// NEURON SET UP AS A SENSORY NEURON. 
-	// WE SEND STIMULUS IF THE val crosses a threshold ? 
-   	// The theshold will be the mean of the image. This way , we do not have to worry about 
-	// dark and bright images ?  
-	   if(val > threshold)
-	   {
-	    _structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->stimulus();
+		networkHorizontalPos = j /_hNetworkSize;
+		networkVerticalPos = i / _vNetworkSize;
+		neuronHorizontalPos = j % _hNetworkSize; 
+		neuronVerticalPos = i % _vNetworkSize; 	
+		
+
+		
+		_structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->sensoryNeuron();
+		// NEURON SET UP AS A SENSORY NEURON. 
+		// WE SEND STIMULUS IF THE val crosses a threshold ? 
+		// The theshold will be the mean of the image. This way , we do not have to worry about 
+		// dark and bright images ?  
+		   if(val > (threshold + 30) )
+		   {
+				_structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->stimulus();
+// Sets the stimulus , based on whether the pixel val is greater than threshold
+
+
+		   }
+			if(__debug__)
+			{
+				
+				debugN("REGION -> ");debug("OUTPUT"); 
+				debug(	_structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->getInput());
+				debug(val);debugN(threshold);
+			} 
 	    }
-    }
-}	
+	}	
 
 }
 
 region * pathway::Region(unsigned int region)
 {
+	if(region > _structure->size())
+	{
+		std::cout << "ERROR : CALLING NON EXISTANT REGION" << std::endl; 
+	}
 	return _structure->at(region); 
 }
-
 void pathway::addRegion(unsigned int nNetworks)
 {
        region* reg = new region(nNetworks);

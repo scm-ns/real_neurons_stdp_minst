@@ -48,7 +48,7 @@ float featureKeeper::similarityInformationContent(feature * pat, short bitsetUse
 }
 
 
-featureKeeper::featureKeeper()
+featureKeeper::featureKeeper() : error(false)
 {
 	_structure = new std::vector<feature*>(0);
 }
@@ -95,7 +95,13 @@ int featureKeeper::isUniquePattern(feature *pat)
 
 bool featureKeeper::insertPattern(feature *newPat)
 {
+	
 	_structure->push_back(newPat);
+	if(__debug__)
+	{
+		debugN("featureKeeper"); debug("New Pattern Inseted");
+		debug("Size "); debugN(_structure->size()); debug(" ::");
+	}
 	return true; // redundant ..
 }
 

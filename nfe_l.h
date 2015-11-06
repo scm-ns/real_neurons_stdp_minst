@@ -48,12 +48,12 @@
 #include "neuron.h"
 #include "network.h"
 #include "region.h"
-
+#include "error.cpp"
 
 #include "featureKeeper.h"
 #include "feature.h"
 #include "featureKeeperVec.h"
-class nfe_l
+class nfe_l:public error
 {
 	public:
 		nfe_l(pathway * pw); // nfe_l is linked to pathway. 
@@ -116,6 +116,17 @@ class nfe_l
 		//  : solution would be to create seperate structures . 
 		//  : some which should more bits others less. 
 		//  : 40 bytes for each network. That could be inefficent. 
+
+
+
+		unsigned int _extendedTill; 
+		// THIS VARIABLE KEEPS TRACK OF HOW MANY REGIONS HAVE BEEN CREATED
+		// EACH REGION WILL BE MAPPED TO HSI 
+		// SO IF REGION 1 IS BUILD EXTENDEDTILL WILL HAVE A VALUE OF 1 
+		//
+		// THIS VARIABLE CAN BE USED TO KEEP TRACK OF WHETHER WE HAVE EXTENDED AND
+		// CREATED THE REGION AND CREATED THE REQUIRED FEATURE KEEPERS. 
+
 }; 
 
 

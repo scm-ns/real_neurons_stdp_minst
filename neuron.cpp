@@ -6,7 +6,7 @@
 
 //int neuron::_number;
 
-neuron::neuron(): error(false)
+neuron::neuron(unsigned int id ): error(false)
 {
     _forced = false;
     _nOutputs = 0 ; 
@@ -19,6 +19,7 @@ neuron::neuron(): error(false)
     // FOR LEARNING
     _activityPos = 0 ;
     // Bookkeeping
+    _id = id;
     if (__debug__) { debugN("CREATE");   debug("ID "); debug(_id); };
     // Exclusively for network usage
     _ticked = false;
@@ -71,7 +72,7 @@ neuron& neuron::operator=(const neuron &a)
 	    std::get<1>(_inputs->at(i)) = std::get<1>(a._inputs->at(i));
             std::get<0>(_inputs->at(i)) = std::get<0>(a._inputs->at(i));
     } 
-     
+  
     __debug__ = a.__debug__;
     if (__debug__) debugN("copy assign ");
     return *this;
@@ -103,9 +104,13 @@ bool neuron::tick()
    {
 	// We just have to check the input . if the inputbuffer is on. we send an impulse. 
            _outputBuffer = _inputBuffer; 
- 	    debugN("ID -> "); debug(_id); debug(" :") ;
-            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
-	    _readyForTick=true;
+	   
+	if(__debug__)
+	{	
+		debugN("ID -> "); debug(_id); debug(" :") ;
+	            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
+	}
+	_readyForTick=true;
 	    // FOR LEARNING ...
 	    insertToActivity(_outputBuffer);
 	    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};

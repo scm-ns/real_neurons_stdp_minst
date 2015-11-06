@@ -5,10 +5,10 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
-
+#include "error.cpp"
 #include "feature.h"
 
-class featureKeeper{
+class featureKeeper : error{
 	private:
 		std::vector<feature*> *_structure;
 	public:

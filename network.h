@@ -21,7 +21,7 @@ class network: public error
 {
 
 public:
-    network(int nNeurons = 0 );
+    network(unsigned int nNeurons = 0 , unsigned int id = 0 );
     ~network();
 
     bool systemTick();

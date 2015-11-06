@@ -16,9 +16,9 @@ class error
             bool getDebug(){return __debug__;};
 
 	    template <typename T>
-	    static void debugN(const T* p){ std::cout << std::endl << "NETWORK-> " << p; }
+	    static void debugN(const T* p){ std::cout << std::endl  << p; }
 	    template <typename T>
-	    static void debugN(const T p){ std::cout << std::endl << "NETWORK-> " << p; }
+	    static void debugN(const T p){ std::cout << std::endl << p; }
 	    template <typename T>
 	    static void debug(const T* p){ std::cout << " " << p; }
 	    template <typename T>

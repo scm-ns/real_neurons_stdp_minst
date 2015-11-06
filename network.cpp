@@ -1,18 +1,21 @@
 #include "network.h"
 
 
-network::network(int nNeurons):error(false)
+network::network(unsigned int nNeurons, unsigned int id ):error(false)
 {
-    _id  = 0 ; 
+    _id  = id ; 
     _nNeurons = nNeurons;
     _networkTicked = false;
     __debug__ = false;
     _neurons = new std::vector<neuron*>(nNeurons);
     _startNeuron = 0; // Assume that the zero th neuron is used to start the network..
+    if(__debug__)
+    {
+	debugN("Network Created"); debug("ID"); debug(_id); 
+    }
     for (unsigned int i = 0; i < _nNeurons; i++)
     {
-        _neurons->at(i) = new neuron();
-	_neurons->at(i)->setId(i);
+        _neurons->at(i) = new neuron(i);
         if (__debug__) { debug(" ID "); debug(_id); debugN("NEURON ADDED"); debug(" NEURON -> ID"); debug(_neurons->at(i)->getId()); }
     }
 }
