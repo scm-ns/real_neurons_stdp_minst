@@ -56,6 +56,7 @@ int main(int argc , char ** argv)
 
 
 	pathway* visionSystem = new pathway(300,300,3,3);
+	visionSystem->setDebug(true);
 	visionSystem->mapVectorNeuron(width,height,_stride,mean(im_gray).val[0],vec);
 	nfe_l neuronFrameExtended(visionSystem);
 	neuronFrameExtended.extend();

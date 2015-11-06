@@ -17,6 +17,7 @@
 #include "network.h"
 #include "neuron.h"
 #include "region.h"
+#include "error.cpp"
 #define Hsize 300; // Horizontal Size 
 #define Vsize 300; // Verital Size
 
@@ -39,7 +40,7 @@
  */
 
 
-class pathway{
+class pathway : public error{
 	public:
 		/*
 		 * Creates the class 
