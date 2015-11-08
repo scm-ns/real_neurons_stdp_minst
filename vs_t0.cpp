@@ -70,9 +70,9 @@ int main(int argc , char ** argv)
 		
 	// Now we go over a new portion of the image .. 
 
-	for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical++)
+	for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical+=100)
 	{	
-		for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal++)	
+		for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal+=100)	
 		{
 			std::cout << "GOING OVER NEXT PATTERN" << std::endl;
 			std::vector<short> * vecFovea = new std::vector<short>(0);
@@ -85,12 +85,21 @@ int main(int argc , char ** argv)
 			}
 			
 			visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vecFovea);
-			visionSystem->regionTick(0);
+			for(unsigned int tickTill = 0 ; tickTill < neuronFrameExtended.getExtendedTill() ; tickTill++)
+			{
+				visionSystem->regionTick(tickTill);
+			}
 			neuronFrameExtended.extend();
-		}	
+		}
+		std::cout << "MOVED ALONG WIDTH" << std::endl;
 	}	
 	
-	
+				if(  neuronFrameExtended.informationAddedDuringExtend() == 0 )
+			{
+				neuronFrameExtended.moveNextRegion();
+				std::cout << "MOVING TO NEXT REGION" << std::endl << std::endl<< std::endl << std::endl << std::endl  ; 
+			}
+
 	
 	
 	

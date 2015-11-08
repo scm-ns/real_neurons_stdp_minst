@@ -19,11 +19,7 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
 	// NOW WE INIT EACH OF THOSE NETWORKS. is it required ? is it not done the constructor of region ? 
 
 
-
-
-// THIS IS IT ?? 
-
-
+	// THIS IS IT ?? 
 }
 
 /*
@@ -100,7 +96,7 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
 		// WE SEND STIMULUS IF THE val crosses a threshold ? 
 		// The theshold will be the mean of the image. This way , we do not have to worry about 
 		// dark and bright images ?  
-		   if(val > (threshold + 30) )
+		   if(val > (threshold ) )
 		   {
 				_structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->stimulus();
 // Sets the stimulus , based on whether the pixel val is greater than threshold

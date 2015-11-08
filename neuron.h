@@ -57,7 +57,7 @@ public:
     void resetTicked(){ _ticked = false; };
 
     // SENSORY NEURON
-    void sensoryNeuron(){ _sense = true; };
+    void sensoryNeuron(){if(_sense != true) _sense = true; };
     void stimulus();
 
     // FOR LEARNING

@@ -18,7 +18,8 @@ nfe_l::nfe_l(pathway * pw) : error(true)
 	// limits the addition of nuerons
 	_regionPatternToNeuronFrequency = INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY;
 	_regionSimilarityThreshold = INITIAL_REGION_SIMILARITY_THRESHOLD; 
-	_extendedTill = 0 ; 
+	_extendedTill = 0 ;
+       _totalNumberOfNueronsAdded = 0 ; 	
 	if(__debug__)
 	{
 
@@ -111,18 +112,10 @@ pathway* nfe_l::extend()
 			_patternInPathway->push_back( new featureKeeperVec()); // Giving the pointer something to point at . 
 												// IMP PATTERN OF REGION 1 IS MAPPED TO 0 INDEX. WE DO NOT HAVE TO KNOW THE PATTERN OF 
 												// REGION 0 ..	
-			if(__debug__)
-			{
-				debugN("NFE_L");debug("Creating a featureKeeper vector for this particular region. ");
-			}
+			
 			_patternInPathway->at(_currentRegion) = new featureKeeperVec;
 	
 
-			if(__debug__)
-			{
-				debugN("NFE_L");debug("Created a new featureKeeper vector for this aprticular Region");
-
-			}
 												// Go through the networks in the base layer and fill the higher layers..
 		} 									// THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
 		
@@ -179,10 +172,10 @@ pathway* nfe_l::extend()
 				if(__debug__)
 				{
 				//	std::cout << temp->pattern << std::endl;
-					std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
-					std::cout << "SEEN BEFORE : " << (patternIndex == -1 )<< std::endl;
-					std::cout << _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())
-						<< std::endl;
+			 	//	std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
+				//	std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->getFrequency(patternIndex) << std::endl;
+				//		std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
+				//	if(patternIndex != -1)	std::cout << "FREQUNCY OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
 				}
 
 
@@ -223,7 +216,7 @@ pathway* nfe_l::extend()
 							_patternInPathway->at(_currentRegion)->FeatureKeeper(i)->neuronCreatedFromPattern(patternIndex);
 							if(__debug__)
 							{
-								debugN("Neuron Added");
+							//	debugN("Neuron Added");
 
 							}
 						}
@@ -246,11 +239,14 @@ pathway* nfe_l::extend()
 		// AND IS THIS A GOOD DESIGN ? 
 
 			// One to one mapping from region i  to region i+1 . Start simple. .. 
-			if(_pathway->getNumRegions() <=  _currentRegion + 1) // We create a new layer only if numRegions is less than the _current Region
+			// One to _nNetworksMerged  mapping from region 0 to region 1 . Start simple. ..
+			if(__debug__)
 			{
-				// One to _nNetworksMerged  mapping from region 0 to region 1 . Start simple. .. 
+				debugN("Creating a new Region "); debug(_pathway->getNumRegions());
+			}
+			
 				_pathway->addRegion(_pathway->Region(_currentRegion)->getNumNetworks()/_nNetworksMerged);
-			} // THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
+			 // THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
 			// Region _currentRegion + 1 is created. or may be it was already crated in previous steps.  
 
 			_patternInPathway->push_back(new featureKeeperVec); 
@@ -282,12 +278,15 @@ pathway* nfe_l::extend()
 			
 			// feaNetworkIndex is created to unsure proper mapping to featureKeeperVec	
 			// the 4 units will map to a single featureKeeper present in location fea of featureKeeperVec
-			for(unsigned int i = 0 , feaNetworkIndex = 0; i < _pathway->Region(_currentRegion)->getNumNetworks()/2;i+=2, feaNetworkIndex++)
+			for(unsigned int i = 0 , feaNetworkIndex = 0; i < (_pathway->Region(_currentRegion)->getNumNetworks()/2 - _pathway->Region(_currentRegion)->getNumNetworks()%2 ) - 1;i+=2, feaNetworkIndex++)
 			{
+//				std::cout << "NUM NETWORKS : "  <<  (_pathway->Region(_currentRegion)->getNumNetworks()/2) << std::endl;
+//				std::cout << "FEATURE      : "  << feaNetworkIndex << "Index : " << i << std::endl;  
+//				std::cout << "NUM HORIZONTAOL : " << (_pathway->Region(_currentRegion)->getNumHorizontalNetworks()) << std::endl;   
 				unitNetworks->at(0) = _pathway->Region(_currentRegion)->Network(i);
 				unitNetworks->at(1) = _pathway->Region(_currentRegion)->Network(i+1);
-				unitNetworks->at(2) = _pathway->Region(_currentRegion)->Network(_pathway->Region(_currentRegion)->getNumHorizontalNetworks() + i );	
-				unitNetworks->at(3) = _pathway->Region(_currentRegion)->Network(_pathway->Region(_currentRegion)->getNumHorizontalNetworks() + i + 1 );	
+				unitNetworks->at(2) = _pathway->Region(_currentRegion)->Network(_pathway->Region(_currentRegion)->getNumHorizontalNetworks() - 1 + i );	
+				unitNetworks->at(3) = _pathway->Region(_currentRegion)->Network(_pathway->Region(_currentRegion)->getNumHorizontalNetworks() - 1 + i + 1 );	
 				// Now we have collected the 4 Networks into a unit. 
 				// We go over each network in this unit and each of the neurons in that network . 
 				// Then we form a new pattern from the neurons . 
@@ -305,26 +304,47 @@ pathway* nfe_l::extend()
 					_patternInPathway->at(_currentRegion)->addFeatureKeeper( new featureKeeper());
 				}
 
+//				std::cout << "Creating Higher Regions" << std::endl;	
 				feature *temp = new feature(); // Stores the network activity from the 4 units.
 				unsigned int bitIndex = 0 ; 
 				neuron * newPattern = new neuron();
-				for(auto *k :* unitNetworks) // GOING THROUGH THE 4 UNITS 
+				for(unsigned int k = 0 ; k < unitNetworks->size() ; k++) // GOING THROUGH THE 4 UNITS 
 				{
-					for(unsigned int j = 0 ; j < k->getNumNeurons();j++) // Going through neurons in the network 
+					for(unsigned int j = 0 ; j < unitNetworks->at(k)->getNumNeurons() -1 ;j++) // Going through neurons in the network 
 					{
-					 temp->pattern[bitIndex] = k->Neuron(j)->getOutput();
+					//	std::cout << "STARING LOOP " << std::endl ; 
+						// BITINDEX IF TO MAPP FROM ALL THE 4 UNITS INTO A 
+						// SINGLE FEATURE VECTOR.
+					//	std::cout <<" J :" << j << std::endl;
+					//	std::cout <<" NumNuerons : " << unitNetworks->at(k)->getNumNeurons() << std::endl;
+					      if(unitNetworks->at(k) ==  NULL)
+					      {
+					//	std::cout << "## J" << j << std::endl; 
+					//	std::cout << "## k->num" << unitNetworks->at(k)->getNumNeurons() << std::endl; 
+				//		std::cout << unitNetworks->size()  << std::endl;
+					      }
+						temp->pattern[bitIndex] = unitNetworks->at(k)->Neuron(j)->getOutput();
 					      if(temp->pattern[bitIndex])
 					      {
-						newPattern->connectNeuron(k->Neuron(j),1);
+				//		      std::cout << "Connecting with + weights " << std::endl;
+			 	 			newPattern->connectNeuron(unitNetworks->at(k)->Neuron(j),1);
 					      }	
 					     else
 					     {
-						newPattern->connectNeuron(k->Neuron(j),-1);
+				//		      std::cout << "Connecting with -  weights " << std::endl;
+						newPattern->connectNeuron(unitNetworks->at(k)->Neuron(j),-1);
 						// Bit index used to map the neuron from each network to a bit set. 
 						bitIndex++;
+						if(__debug__)
+						{
+				//				std::cout << bitIndex << std::endl;
+				//			std::cout << "NUM NEURONS "  << unitNetworks->at(k)->getNumNeurons() << std::endl;
+						}
 					    } 
 					}
 				}
+				
+			//	std::cout << "After loop "  << std::endl ; 
 				// We not check if the pattern is unique , if it is unique when we create a new
 				// neuron and if it is not , we don't.
 				temp->frequency = 1 ;  // Set the frequency of the feature vector . 
@@ -355,7 +375,7 @@ pathway* nfe_l::extend()
 					if(_patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) >= _regionPatternToNeuronFrequency)
 					{
 						// IF THE PATTERN HAS NOT BEEN CONVERTED INTO A NEURON. 
-						// THEN WE ADD THE NEURON INTO THE NETWORK 
+						// THEN WE ADD THE NEURON INTO THE NETWORK
 						if( ! _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->hasNeuronCreatedFromPatter(patternIndex))
 						{
 							// ADD NEURON TO THE MAPPED NETWORK IN UPPER REGION
@@ -392,12 +412,8 @@ pathway* nfe_l::extend()
 	std::cout << "NUMBER OF NEURONS ADDED : " << _neuronAddedDuringExtention << std::endl;
 	std::cout << "NUMBER OF PATTERS ADDED : " << _informationAddedDuringExtention << std::endl;
         std::cout << "NUMBER OF PATTERNS REPEATED : " << _informationRepeatedDuringExtention << std::endl;	
-
-
-
-
-
-
+	_totalNumberOfNueronsAdded += _neuronAddedDuringExtention; 
+	std::cout << "TOTAL NUERONS ADDED " << _totalNumberOfNueronsAdded << std::endl; 
 
 
 
@@ -419,8 +435,11 @@ void nfe_l::moveNextRegion()
 	_currentRegion++;
         _regionPatternToNeuronFrequency += NEXT_REGION_SIMILARITY_THRESHOLD_INCREASE;	
 	_regionSimilarityThreshold -= NEXT_REGION_PATTERN_TO_NEURON_FREQUENCY_DECREASE;
-
-
+	_totalNumberOfNueronsAdded = 0; 
+	if(__debug__)
+	{
+		std::cout << " Extended TIll " << _extendedTill << std::endl;
+	}
 }
 
 

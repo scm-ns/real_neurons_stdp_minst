@@ -7,7 +7,7 @@
 #define N_NETWORKS_MERGED 4
 // NUMBER OF NETWORKS MERGED IN ABOVE LAYERS
 #define INITIAL_REGION_SIMILARITY_THRESHOLD 0.2
-#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 20
+#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 1
 #define NEXT_REGION_SIMILARITY_THRESHOLD_INCREASE 0.01 
 // FOR HIGHER REGIONS WE INCREASE THE SIMILARITY THRESHOLD
 #define NEXT_REGION_PATTERN_TO_NEURON_FREQUENCY_DECREASE 1
@@ -70,6 +70,11 @@ class nfe_l:public error
 		 */
 		void moveNextRegion(); 
 		float informationAdded(){ return (float)_informationAddedDuringExtention/_pathway->Region(_currentRegion)->getNumNetworks();};
+		// Call thesse functions only after extend has been called . 
+		// They are reset by calling the extend functon
+		unsigned int neuronsAddedDuringExtend(){return _neuronAddedDuringExtention;};
+		unsigned int informationAddedDuringExtend(){return _informationAddedDuringExtention;};
+		unsigned int getExtendedTill(){return _extendedTill;};
 	private:
 		pathway * _pathway;
 		std::vector<featureKeeperVec*> * _patternInPathway;
@@ -127,6 +132,8 @@ class nfe_l:public error
 		// THIS VARIABLE CAN BE USED TO KEEP TRACK OF WHETHER WE HAVE EXTENDED AND
 		// CREATED THE REGION AND CREATED THE REQUIRED FEATURE KEEPERS. 
 
+
+		unsigned int _totalNumberOfNueronsAdded; 
 }; 
 
 

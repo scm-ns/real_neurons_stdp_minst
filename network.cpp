@@ -113,9 +113,9 @@ Allow the user to make changes to the neuron...
 
 neuron* network::Neuron(unsigned int id)
 {
-    if (_neurons->at(id)->getId() == id)
+   // if (_neurons->at(id)->getId() == id)
     return (_neurons->at(id));
-    else // Find
+  /*  else // Find
     {
         for (auto i : *_neurons)
         {
@@ -124,7 +124,7 @@ neuron* network::Neuron(unsigned int id)
                 return i;
             }
         }
-    }
+    }*/
 }
 
 /*

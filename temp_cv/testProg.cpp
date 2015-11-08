@@ -49,9 +49,10 @@ int main(int argc, char** argv )
 	 //  	printf("%i \n", val);	
 	    }
 	}
+  	cv::Mat binaryMat(im_gray.size(), im_gray.type());
 
 	printf("%f",mean(im_gray).val[0]);
-   imshow("Display Image", im_gray);
+   imshow("Display Image", binaryMat);
 
     waitKey(0);
 
