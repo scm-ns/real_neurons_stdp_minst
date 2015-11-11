@@ -6,11 +6,19 @@
 
 //int neuron::_number;
 
-neuron::neuron(unsigned int id ): error(false)
+neuron::neuron(unsigned int id , unsigned int networkid , unsigned int regionid): error(true)
 {
     _forced = false;
+
+   
     _nOutputs = 0 ; 
-    _nOutputsToSend = _nOutputs ; 
+
+    /* TO ENSURE THAT RESETING IS DONE PROPERLY , 
+     * WE DO NOT WANT TO RESET A NEURON IF IT HAS TO SEND OUTPUTS TO ANOTHER 
+     * NEURON
+     *
+     */
+    _nOutputsToSend = 0; 
     _potential = 0;
     _threshold = THRES;  // .........
     _inputBuffer = FLAT;
@@ -18,20 +26,38 @@ neuron::neuron(unsigned int id ): error(false)
     _inputs = new std::vector < std::tuple<neuron*, float> >(0) ;
     // FOR LEARNING
     _activityPos = 0 ;
-    // Bookkeeping
+
+
+
+    // INDENTIFICATION
     _id = id;
-    if (__debug__) { debugN("CREATE");   debug("ID "); debug(_id); };
+    _networkid = networkid;
+    _regionid = regionid;
+
+    // LEVELS FOR NFE -L TO RECOGNIZE WHICH TO JOIN TOGETHER , AND WHICH NOT TO JOIN TOGETHER. 
+
+    if (__debug__)
+    { 
+	    std::cout << "CREATE NEURON: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
+    };
     // Exclusively for network usage
     _ticked = false;
-    // LEVELS FOR NFE -L TO RECOGNIZE WHICH TO JOIN TOGETHER , AND WHICH NOT TO JOIN TOGETHER. 
-    _level = 0 ;  
 }
 
 
 neuron::~neuron()
 {
-    delete _inputs; // Not required.. I do not want to delete neurons I do not have ownership of ..
-    if (__debug__) { debugN("DELETE ");  debug("ID ");  debug(_id); };
+	// WE OVER THE INPUTS AND MAKE THEM NOT REQUIRED. THIS IS DONE FOR PROPER RESETTING.. 
+     for(size_t i = 0 ; i < _inputs->size();i++)
+    {
+            std::get<0>(_inputs->at(i))->notRequiredAsInput();
+    }
+
+	delete _inputs; // Not required.. I do not want to delete neurons I do not have ownership of ..
+    if (__debug__)
+    {
+  	 std::cout << "DELETE NEURON: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl;  
+    };
 }
 
 
@@ -105,15 +131,15 @@ bool neuron::tick()
 	// We just have to check the input . if the inputbuffer is on. we send an impulse. 
            _outputBuffer = _inputBuffer; 
 	   
-	if(__debug__)
-	{	
-		debugN("ID -> "); debug(_id); debug(" :") ;
-	            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
-	}
+//if(__debug__)
+//{	
+//	debugN("ID -> "); debug(_regionid) ;debug(" :"); debug(_networkid);debug(" :") ;debug(_id); debug(" :") ;
+//            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
+//}
 	_readyForTick=true;
 	    // FOR LEARNING ...
 	    insertToActivity(_outputBuffer);
-	    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};
+//	    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};
 
  	   _ticked=true;
 	    return true;  
@@ -143,6 +169,7 @@ bool neuron::tick()
 	    _readyForTick = false;
 			if(__debug__)
 			{
+		debugN("ID -> "); debug(_regionid) ;debug(" :"); debug(_networkid);debug(" :") ;debug(_id); debug(" :") ;
 				debug("Previous SPIKE not yet propogated");
 			}
 	
@@ -327,6 +354,11 @@ void neuron::stimulus()
 {
 	if(_sense)
 	{
+		if(__debug__)
+		{
+
+	    std::cout << "SETTING STIMULUS: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
+		}
    		 _inputBuffer = SPIKE; // This will be made low by the tick progress..
 	}
 	else
@@ -348,12 +380,20 @@ void neuron::setInputneuron(neuron* _neuron, double _weight)
 {
     _inputs->push_back(std::make_tuple(_neuron, _weight)); // Only store pointers to neuron, 
     							  //do not store the actual neuron.
-    if (__debug__) { debugN("ADDING INPUT ");  debug(_inputs->size()); };
+    if (__debug__) 
+    {
+	    std::cout  << "CONNECTING : " << "TO->"<<  _regionid << " : " <<  _networkid  <<  " : "  << _id << "  FROM -> " << _neuron->getRegionId()  << " : " << _neuron->getNetworkId() << " : " << _neuron->getId() << std::endl ; 
+    };
+
 }
 
 
 
-
+void neuron::notRequiredAsInput()
+{
+	_nOutputs--;
+	_nOutputsToSend = _nOutputs;
+}
 
 
 

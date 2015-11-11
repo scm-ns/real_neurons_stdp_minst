@@ -7,7 +7,7 @@
 #define N_NETWORKS_MERGED 4
 // NUMBER OF NETWORKS MERGED IN ABOVE LAYERS
 #define INITIAL_REGION_SIMILARITY_THRESHOLD 0.2
-#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 1
+#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 10
 #define NEXT_REGION_SIMILARITY_THRESHOLD_INCREASE 0.01 
 // FOR HIGHER REGIONS WE INCREASE THE SIMILARITY THRESHOLD
 #define NEXT_REGION_PATTERN_TO_NEURON_FREQUENCY_DECREASE 1
@@ -69,6 +69,35 @@ class nfe_l:public error
 		 * The user will force on over ride telling it to move to the next layer . 
 		 */
 		void moveNextRegion(); 
+	
+
+		/* Use for fine grained control. specify the region to which to extend. 
+		 * What if the region is too high up , return false. don't extend.
+		 * this function is used to ensure that after an intial pass and 
+		 * creation of the pathways , we can start from the begining 
+		 * and then go to the higher levels.
+		 * 
+		 * Why do more passes ? 
+		 * We might see a pattern in one image, that we did not see in other
+		 * images. 
+		 *
+		 */
+
+
+		void moveToRegion(unsigned int region);
+
+
+
+
+
+
+		
+		/* KEEPS TRACK OF AMOUNT OF INFORMATION PRESENT IN THE FEATURE KEER[ER. 
+		 * EXTREMLY LIMITED . I NEED TO USE MORE SOPHISTICATED CONCEPTS. 
+		 * ASK OTHERS ? DONT . 
+		 *
+		 *
+		 */
 		float informationAdded(){ return (float)_informationAddedDuringExtention/_pathway->Region(_currentRegion)->getNumNetworks();};
 		// Call thesse functions only after extend has been called . 
 		// They are reset by calling the extend functon
@@ -136,13 +165,70 @@ class nfe_l:public error
 		unsigned int _totalNumberOfNueronsAdded; 
 }; 
 
-
-
-
-
-
-
-
-
-
 #endif
+
+
+/*
+ *
+ *  TO DO : KEEP TRACK OF ERRORS IN THE PROGRAM CORRECT IT 
+ *
+ *  NOV 11 , 5102 
+ *
+ *  	I AM NOT ABLE TO PASS ON ACTIVITY TO THE HIGHER LEVELS. 
+ *  	IS IT BECUAUSE OF THE WEIGHTS NOT BEING HIGH ENOUGH 
+ *  	OR IS IT BECAUSE THERE IS SOME ERROR IN HWO EVERYTHING IS 
+ *  	CONNECTED ? 
+ *  		
+ *  		I am going to try increasing the weights and see what 
+ *  		happens 
+ *
+ *  	I also need to implement region specific activit extractor ,
+ *  	so that I can keep track of which neuron in which network fires
+ *
+ *  	I also need to find some way of storing the values.
+ * 	so that I can use previous training.  
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+

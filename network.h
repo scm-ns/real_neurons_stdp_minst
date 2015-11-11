@@ -21,7 +21,7 @@ class network: public error
 {
 
 public:
-    network(unsigned int nNeurons = 0 , unsigned int id = 0 );
+    network(unsigned int nNeurons , unsigned int id  , unsigned int region );
     ~network();
 
     bool systemTick();
@@ -35,12 +35,17 @@ public:
     void setNetworkDebug(bool f);
     void runSetup(bool t) { _run = t; };
     void setStarter(bool t){_starter = t;};
-    void setID(unsigned int a) {_id =a ; }
+    unsigned int getId() { return _id;};
+    //void sID(unsigned int a) {_id =a ; }
     //LEARNING BAD CODE> KEEP PRIVATE THINGS PRIVATE.			//TODO CORRECT IT.	  
         std::vector<neuron*>* getNeurons(){ return _neurons;};
 
 private:
-    unsigned int _id; // ID OF THE NETWORK. HELPFUL WHEN USING MULTIPLE NETWORKS.
+	// IDENTIFICATION 
+    unsigned int _id; // ID OF THE NETWORK. HELPFUL WHEN USING MULTIPLE NETWORKS. 
+    unsigned int _regionid; 
+
+
     bool _run;
     bool _starter; // Indicates whether a starter neuron is being used.. 
     unsigned int _nNeurons;

@@ -1,7 +1,7 @@
 #include "pathway.h"
 
 
-pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronInBaseUnitVertical , unsigned int n_NeuronInBaseUnitHorizonal):error(false)
+pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronInBaseUnitVertical , unsigned int n_NeuronInBaseUnitHorizonal):error(true)
 {
 	_hSize = hSize; _vSize=vSize; _nRegion = 0;
 	_hNetworkSize = n_NeuronInBaseUnitHorizonal; _vNetworkSize = n_NeuronInBaseUnitVertical;
@@ -15,7 +15,7 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
 	unsigned int n_NetworkBaseLayer = hSize * vSize / n_NeuronInBaseUnit;
 			// THIS WILL GIVE THE NUMBER OF NETWORKS IN BASE LAYER..
 			// THIS SHOULD BE AN INT. CALLER SHOULD HANDLE THIS. i
-	_structure->at(0) = new region(n_NetworkBaseLayer,n_NeuronInBaseUnit);
+	_structure->at(0) = new region(0,n_NetworkBaseLayer,n_NeuronInBaseUnit);
 	// NOW WE INIT EACH OF THOSE NETWORKS. is it required ? is it not done the constructor of region ? 
 
 
@@ -105,10 +105,8 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
 		   }
 			if(__debug__)
 			{
-				
-				debugN("REGION -> ");debug("OUTPUT"); 
-				debug(	_structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->getInput());
-				debug(val);debugN(threshold);
+				std::cout << "REGION : -> 0 " << "SETTING INPUT LAYER STIMULUS " << _structure->at(0)->Network(networkHorizontalPos * n_networkHorizontal + networkVerticalPos)->Neuron(neuronHorizontalPos * _hNetworkSize + neuronVerticalPos)->getInput() << " VAL : " << val 
+				       << " THRESHOLD :" << threshold <<std::endl;  
 			} 
 	    }
 	}	
@@ -123,9 +121,9 @@ region * pathway::Region(unsigned int region)
 	}
 	return _structure->at(region); 
 }
-void pathway::addRegion(unsigned int nNetworks)
+void pathway::addRegion(unsigned int nNetworks, unsigned int regionid)
 {
-       region* reg = new region(nNetworks);
+       region* reg = new region(_structure->size(), nNetworks,regionid);
        _structure->push_back(reg);
        _nRegion++;
 }

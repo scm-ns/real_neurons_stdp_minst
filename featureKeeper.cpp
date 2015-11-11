@@ -109,6 +109,10 @@ bool featureKeeper::insertPattern(feature *newPat)
 
 int featureKeeper::getFrequency(unsigned int patternIndex)
 {
+	if(patternIndex > _structure->size())
+	{
+		return 0 ; 
+	}
 	return 	_structure->at(patternIndex)->frequency; // Call sensibly 	
 }
 

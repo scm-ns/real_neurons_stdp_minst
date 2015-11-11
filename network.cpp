@@ -1,21 +1,22 @@
 #include "network.h"
 
 
-network::network(unsigned int nNeurons, unsigned int id ):error(false)
+network::network(unsigned int nNeurons, unsigned int id , unsigned int region):error(true)
 {
     _id  = id ; 
+    _regionid = region;
     _nNeurons = nNeurons;
     _networkTicked = false;
     __debug__ = false;
     _neurons = new std::vector<neuron*>(nNeurons);
     _startNeuron = 0; // Assume that the zero th neuron is used to start the network..
-    if(__debug__)
+    if(1)
     {
-	debugN("Network Created"); debug("ID"); debug(_id); 
+	std::cout << "Network Created : ID -> " << _id << std::endl;
     }
     for (unsigned int i = 0; i < _nNeurons; i++)
     {
-        _neurons->at(i) = new neuron(i);
+        _neurons->at(i) = new neuron(i,_id, _regionid);
         if (__debug__) { debug(" ID "); debug(_id); debugN("NEURON ADDED"); debug(" NEURON -> ID"); debug(_neurons->at(i)->getId()); }
     }
 }
@@ -90,8 +91,9 @@ bool network::systemTick()
 
 void network::addNeuron()
 {
-    neuron *n = new neuron();
-    n->setId(_nNeurons);
+    neuron *n = new neuron(_neurons->size(), _id ,_regionid); 
+    			// New neuron will have a id , 1 layer than the id of previous 
+			// size does +1 
     _nNeurons++;
     n->setDebug(__debug__);
     _neurons->push_back(n);{

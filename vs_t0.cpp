@@ -15,8 +15,9 @@
 #include "pathway.h"
 #include <opencv2/opencv.hpp>
 
-#define FOVEA_HEIGHT 300
-#define FOVEA_WIDTH 300		
+#define STEP 800
+#define FOVEA_HEIGHT 6
+#define FOVEA_WIDTH 6		
 #define FOVEA_STRIDE FOVEA_WIDTH - 1
 #define nNEURONS_HORIZONTAL 3 
 #define nNEURONS_VERTICAL 3 
@@ -62,7 +63,6 @@ int main(int argc , char ** argv)
 	// NOW WE CREATE THE SECTIONS THROUGH WHICH WE WANT TO MOVE .. 
 
 	pathway* visionSystem = new pathway(FOVEA_WIDTH,FOVEA_HEIGHT,nNEURONS_HORIZONTAL ,nNEURONS_VERTICAL );
-	visionSystem->setDebug(false);
 	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
 	visionSystem->regionTick(0);
 	nfe_l neuronFrameExtended(visionSystem);
@@ -70,9 +70,9 @@ int main(int argc , char ** argv)
 		
 	// Now we go over a new portion of the image .. 
 
-	for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical+=100)
+	for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical+=STEP)
 	{	
-		for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal+=100)	
+		for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal+=STEP)	
 		{
 			std::cout << "GOING OVER NEXT PATTERN" << std::endl;
 			std::vector<short> * vecFovea = new std::vector<short>(0);
@@ -88,13 +88,14 @@ int main(int argc , char ** argv)
 			for(unsigned int tickTill = 0 ; tickTill < neuronFrameExtended.getExtendedTill() ; tickTill++)
 			{
 				visionSystem->regionTick(tickTill);
+				std::cout << "TICKED NETWORK" << std::endl;
 			}
 			neuronFrameExtended.extend();
 		}
 		std::cout << "MOVED ALONG WIDTH" << std::endl;
 	}	
 	
-				if(  neuronFrameExtended.informationAddedDuringExtend() == 0 )
+			if(  neuronFrameExtended.informationAddedDuringExtend() == 0 )
 			{
 				neuronFrameExtended.moveNextRegion();
 				std::cout << "MOVING TO NEXT REGION" << std::endl << std::endl<< std::endl << std::endl << std::endl  ; 

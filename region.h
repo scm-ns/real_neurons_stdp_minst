@@ -20,11 +20,10 @@ class region: public error
 		// AND LINKED IN CALLER CLASSES .. 
 		//
 		//
-		region(unsigned int nNetworks, unsigned int nNeuronsNetwork = 0 );
+		region(unsigned int id,  unsigned int nNetworks, unsigned int nNeuronsNetwork  );
 		~region(); // Should I use smart pointers ? Difficulties with arm compiler may be?
 	 	network* Network(unsigned int pos);// Gives us the pointer to network at position pos. 
 		unsigned int getNumNetworks(){ return _structure->size();};
-		void setId(unsigned int id){ _id = id;};
 		unsigned int getID(){return _id;};	
 		/*Should I call systemTick on each network ? Is the order necessary 
 		 * No it is not, the networks are currently independent. 

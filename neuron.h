@@ -27,7 +27,7 @@ enum FIRINGBIT
 class neuron : public error
 {
 public:
-    neuron(unsigned int id = 0);
+    neuron(unsigned int id , unsigned int networkid ,unsigned int regionid );
     ~neuron();
     neuron(const neuron &n);
     neuron & operator=(const neuron &n);
@@ -36,7 +36,17 @@ public:
 
     void setInputneuron(neuron* _neuron, double _weight = 1);
     bool connectNeuron(neuron* n1, double _weight = 1);
+
+    /*
+     * THIS IS CALLED ON ANY NEURON THIS NEURON HAS AS INPUTS 
+     * SO THAT WHEN WE RESET THE INPUT NEURON , WE DO NOT 
+     * RESET IT , IF SOME OTHER NEURON HAS GET TO GET ITS INPUT 
+     * FROM THIS NEURON 
+     *
+     */
     void requiredAsInput();
+    void notRequiredAsInput();
+    
     bool readyForTick(){ return _readyForTick; };
     unsigned int getNOutputToSend(){ return _nOutputsToSend; };
     unsigned int getNInputNeuron(){ return _inputs->size() ;};
@@ -48,8 +58,9 @@ public:
     double getInputWeight(unsigned int inputID);
     bool changeInputWeight(unsigned int inputID, float weight); // Specify the input connection and the new weight..
 
-    void setId(int id){ _id = id; };
     unsigned int getId(){ return _id; };
+    unsigned int getNetworkId()	{return _networkid;};
+    unsigned int getRegionId(){return _regionid;};
     void forceNeuron(bool _f);
 
     // EXCLUSIVELY FOR NETWORK USAGE
@@ -67,7 +78,6 @@ public:
 
     // FOR NFE - L 
     int8_t getLevel(){return _level;};
-    void setLevel(int8_t t){_level = t ;};
 
 // State..
 private:
@@ -84,13 +94,22 @@ private:
     std::vector< std::tuple<neuron*, float> > *_inputs; // one or many inputs. Each with specific weights..
 
 
+
+
     FIRINGBIT _inputBuffer;
     FIRINGBIT _outputBuffer;
     float _threshold;
     float _potential;
     bool _forced; // To force an output spike. Use to start a network only ....
 
+    // IDENTIFICATION 
+    
     unsigned int _id;
+
+    unsigned int _networkid;
+    unsigned int _regionid;
+
+
 
 
 		    // To be used by the network to keep track of which neurons have ticked , which  has not...
