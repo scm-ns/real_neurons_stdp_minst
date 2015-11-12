@@ -76,19 +76,12 @@ class nfe_l:public error
 		 * this function is used to ensure that after an intial pass and 
 		 * creation of the pathways , we can start from the begining 
 		 * and then go to the higher levels.
-		 * 
 		 * Why do more passes ? 
 		 * We might see a pattern in one image, that we did not see in other
 		 * images. 
 		 *
 		 */
-
-
 		void moveToRegion(unsigned int region);
-
-
-
-
 
 
 		

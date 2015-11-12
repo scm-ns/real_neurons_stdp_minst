@@ -126,56 +126,54 @@ The handler should call this function again , until it returns a true..
 
 bool neuron::tick()
 {
-   if(_sense)
+ 
+       if(__debug__)
+       {	       
+	std::cout << "NEURON -> TICK -> INFO " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  " INPUT " << _inputBuffer << " #INPUTS" << _inputs->size() << " #OUTPUTS " << _nOutputsToSend <<  std::endl;  
+       };
+
+    if(_sense)
    {
 	// We just have to check the input . if the inputbuffer is on. we send an impulse. 
            _outputBuffer = _inputBuffer; 
 	   
-//if(__debug__)
-//{	
-//	debugN("ID -> "); debug(_regionid) ;debug(" :"); debug(_networkid);debug(" :") ;debug(_id); debug(" :") ;
-//            debug("SENSE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
-//}
-	_readyForTick=true;
+	if(__debug__)
+	{	
+		std::cout << "NEURON -> TICK -> SENSE  " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  std::endl;  
+	}
+        	_readyForTick=true;
 	    // FOR LEARNING ...
 	    insertToActivity(_outputBuffer);
-//	    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};
-
  	   _ticked=true;
 	    return true;  
    }
 
-    if (_forced) // No checking.. Used to start network..
-    {
-        _readyForTick = true;
-   	_inputBuffer = SPIKE; // Make it more similar to neurons. Input in input buffer and then 	// moved to output buffer.... 	
-	_outputBuffer = _inputBuffer;
-			if (__debug__)
-			{
-			    debugN("ID -> "); debug(_id); debug(" :") ;
-			    debug("FORCE ");  debug("OUTPUT "); debug(_outputBuffer); //debug(_potential);
-			};
-        _ticked = true;// FOR NETWORK USAGE ONLY
-        return true;
-    }
 
+/* 
+ * THIS DOES NOT MATTER IN THIS MODEL . THE OUTPUTS IN NEVER GOING TO BE ZERO AS WE TICK LAYER BY LAYER , HENCE
+ * WE NEED TO TICK EVER IF THE OUTPUTS ARE NOT ZERO. 
+ *    WHAT IF SOME NEURONS DO NOT RECEIVE THE INPUT FROM THIS NEURON . 
+ *    THIS IS NOT GOING TO HAPPEN IN THE REGION BY REGION MODEL. IT IS ONLY AFTER A LAYER IS COMPLETELY TICKED 
+ *    THAT WE MOVE TO THE NEXT REGION. 
+ *    IF BE MAKE INTERCONNECTIONS BETWEEN THE NEURONS IN THE LAYER , THEN WE MIGHT HAVE TO CONSIDER THIS MODEL SO THAT , ALL NEURONS GETS THE INPUTS FROM A 
+ *    SINGLE NEURON. 
     if(_nOutputs == 0)
     { // This means no other neuron will call reset on this neuron , so we call the rest on this neuron
 	    reset();
     }    
+
     if(_outputBuffer == SPIKE) // This means that this neuron has not been reset from the previous SPIKE
     {                           // WHich means that some neurons might still need this output. 
 	    _ticked = false; 
 	    _readyForTick = false;
-			if(__debug__)
-			{
-		debugN("ID -> "); debug(_regionid) ;debug(" :"); debug(_networkid);debug(" :") ;debug(_id); debug(" :") ;
-				debug("Previous SPIKE not yet propogated");
-			}
+	   if(__debug__)
+	{
+  		 std::cout << "NEURON -> TICK ->  PREVIOUS SPIKE NOT YET PROPOGATED " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl;  
+	}
 	
 	    return false;
     }
-
+*/
 
     	// If inputs all updated..
      if (__debug__)
@@ -183,7 +181,7 @@ bool neuron::tick()
         // if no inputs warn..
          if (_inputs->size() == 0)
          {
-  		debugN("ID -> "); debug(_id); debug(" :") ;  debug(" * "); debug("#INPUTS "); debug(0);
+  		std::cout << "NEURON -> NO INPUTS " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl;  
          }
      }
     for (auto i : *_inputs) // __1__
@@ -228,13 +226,16 @@ bool neuron::tick()
     
     _outputBuffer = _inputBuffer; // We can make this more compilated if required.. 
 
-    if (__debug__) {
-         debugN("ID -> "); debug(_id); debug(" :") ;debug(" * ");
-	 debug("OUTPUT ");  debug(_outputBuffer); //debug(_potential);
-      };
+    if (__debug__)
+    {  	
+  	std::cout << "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK OUTPUT " << _outputBuffer << std::endl;
+    };
     // FOR LEARNING ...
     insertToActivity(_outputBuffer);
-    if(__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug(_activity);};
+    if(__debug__) 
+    {
+  	std::cout <<  "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK ACTIVITY HISTORY : " << _activity << std::endl;
+    };
 
 
     _ticked = true;// FOR NETWORK USAGE ONLY
@@ -250,8 +251,10 @@ After the outputs have recieved the input , then previous neuron goes into an in
 */
 void neuron::reset()
 {
-    if (__debug__) {  debugN("ID -> "); debug(_id); debug(" :") ; debug("RESET");debug("BEFORE ");  debug(_outputBuffer); debug("#OUTPUTS ");  debug(_nOutputsToSend); };
-
+    if (__debug__)
+    { 
+  		std::cout <<"NEURON -> RESET" << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " BEFORE : " << _outputBuffer << " #OUTPUTS : " << _nOutputsToSend ;  
+    };
     if (_forced) // Once the force neruon has started the network , we no longer assume that the start neuron spikes..
     {
          if (_nOutputsToSend <= 1)
@@ -291,7 +294,10 @@ void neuron::reset()
              _nOutputsToSend--;
 	}
     }
-    if (__debug__) { debug("AFTER "); debug(_outputBuffer); };
+    if (__debug__)
+    {
+	    std::cout << "AFTER: " << _outputBuffer << std::endl;
+    };
 };
 
 
@@ -357,7 +363,7 @@ void neuron::stimulus()
 		if(__debug__)
 		{
 
-	    std::cout << "SETTING STIMULUS: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
+		    std::cout << "SETTING STIMULUS: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
 		}
    		 _inputBuffer = SPIKE; // This will be made low by the tick progress..
 	}
@@ -394,30 +400,6 @@ void neuron::notRequiredAsInput()
 	_nOutputs--;
 	_nOutputsToSend = _nOutputs;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

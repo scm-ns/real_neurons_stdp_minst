@@ -31,6 +31,7 @@ float featureKeeper::similarityInformationContent(feature * pat, short bitsetUse
 	// so average will be good.
 	std::bitset<maxNumPattern> temp;
         float info = 0 ; 	
+	if (bitsetUsed == 0) return 0 ;  // HACK FOR NOW .. 
 	       for(auto *i : *_structure)
 	       {
 			 temp = i->pattern ^ pat->pattern; // Take the and .

@@ -50,6 +50,9 @@ int main(int argc, char** argv )
 	    }
 	}
   	cv::Mat binaryMat(im_gray.size(), im_gray.type());
+	cv::threshold(im_gray, binaryMat, mean(im_gray).val[0], 255, cv::THRESH_BINARY);
+
+
 
 	printf("%f",mean(im_gray).val[0]);
    imshow("Display Image", binaryMat);

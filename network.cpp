@@ -10,14 +10,17 @@ network::network(unsigned int nNeurons, unsigned int id , unsigned int region):e
     __debug__ = false;
     _neurons = new std::vector<neuron*>(nNeurons);
     _startNeuron = 0; // Assume that the zero th neuron is used to start the network..
-    if(1)
+    if(__debug__)
     {
-	std::cout << "Network Created : ID -> " << _id << std::endl;
+	std::cout << "NETWORK CREATED : ID -> " << _regionid << " : " <<  _id << std::endl;
     }
     for (unsigned int i = 0; i < _nNeurons; i++)
     {
         _neurons->at(i) = new neuron(i,_id, _regionid);
-        if (__debug__) { debug(" ID "); debug(_id); debugN("NEURON ADDED"); debug(" NEURON -> ID"); debug(_neurons->at(i)->getId()); }
+        if (__debug__) 
+	{
+		std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id << " NEURON ADDED " <<"ID NEURON -> " << _neurons->at(i)->getRegionId() << " : " << _neurons->at(i)->getNetworkId() << " : " << _neurons->at(i)->getId() << std::endl; 
+	}
     }
 }
 
@@ -42,8 +45,7 @@ bool network::systemTick()
 {
     if(__debug__)
     {
-        debugN("ID ");debug(_id);
-	debug(" SYSTEM TICK");
+   	std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id << std::endl ;
     }
 
      bool temp  = false;
@@ -95,9 +97,11 @@ void network::addNeuron()
     			// New neuron will have a id , 1 layer than the id of previous 
 			// size does +1 
     _nNeurons++;
-    n->setDebug(__debug__);
-    _neurons->push_back(n);{
-    if (__debug__) { debugN("ID "); debug(_id); debug("NEURON ADDED"); debug("NEURON -> ID"); debug(_neurons->at(_nNeurons-1)->getId()); }
+    _neurons->push_back(n);
+    if (__debug__)
+   	 {
+	   
+   		std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id <<  " NEURON ADDED NEURON ID -> " << n->getRegionId() << " : " << n->getNetworkId() << " : " << n->getId() << std::endl ;
 	}
 }
 
