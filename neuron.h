@@ -68,8 +68,10 @@ public:
     void resetTicked(){ _ticked = false; };
 
     // SENSORY NEURON
-    void sensoryNeuron(){if(_sense != true) _sense = true; };
+    void sensoryNeuron(){ _sense = true; };
     void stimulus();
+    void forceSilence();
+    void forceInputSilence();
 
     // FOR LEARNING
     std::vector< std::tuple<neuron*, float> > *getInputNeurons(){return _inputs;}

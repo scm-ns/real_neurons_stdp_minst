@@ -1,7 +1,7 @@
 #include "network.h"
 
 
-network::network(unsigned int nNeurons, unsigned int id , unsigned int region):error(true)
+network::network(unsigned int nNeurons, unsigned int id , unsigned int region):error(false)
 {
     _id  = id ; 
     _regionid = region;

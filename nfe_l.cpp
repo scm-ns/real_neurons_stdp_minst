@@ -146,7 +146,11 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 			// if the pattern is unique we add it to be network 
 			// if it is not unique we do not add it to the network and simply delete it
 			neuron * newPattern = new neuron(_pathway->Region(_currentRegion + 1)->Network(i)->getNumNeurons(), i , _currentRegion + 1);
+			
 
+
+			std::cout << "Creating Neuron -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
+		
 				// Go through each neuron in the current network
 				for(unsigned int j = 0 ; j < _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() ; j++)
 				{ 
@@ -157,8 +161,14 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 					}
 					else
 					{
-						newPattern->connectNeuron(_pathway->Region(_currentRegion)->Network(i)->Neuron(j),1.0);//  _pathway->Region(_currentRegion)->Network(i)->getNumNeurons()); // COnnect with - weight 
+						newPattern->connectNeuron(_pathway->Region(_currentRegion)->Network(i)->Neuron(j),-1.0);//  _pathway->Region(_currentRegion)->Network(i)->getNumNeurons()); // COnnect with - weight 
 					}
+					
+
+					// SILENCE THIS NEURON THAT WE JUST CONNECTED TO . 
+					// WHY ? WE DO NOT WANT TO LOOSE TRACK OF THE NUMBER OF NEURONS THAT WE SHOULD SEND THE SIGNAL TO 
+					// BUT IN THIS SITUATION WE ARE REPEATEDLY SPIKING IT , WHEN A NEW NEURON CONECTION IS FORMED ,SO THERE IS NO NEED TO 
+					// STORE THE OUTPUT VALUE.
 				}
 				temp->frequency = 1; // Handled in the isUniquePattern . This is not used. 
 				int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->isUniquePattern(temp);
@@ -178,10 +188,18 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
 			}
 			std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
-			std::cout << "NUMBER OF NEURONS IN NETWORK : " << _pathway->Region(_currentRegion)->Network(i)->getNumNeurons();
+	//		std::cout << "NUMBER OF NEURONS IN NETWORK : " << _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() << std::endl;
 		}
 
 
+		newPattern->tick(); // THIS STEP IS VERY IMPORTANT. WITHOUT IT , THE PREVIOUS LAYER WILL NOT BE RESET AND ALSO , THE NEURON HAS TO HAVE  OUTPUT WHEN THE NEXT REGION TRIES TO DECIDE WHETHER TO CONNECT POSITIVELY OR NEGATIVELY. 
+
+
+		if(__debug__)
+		{
+	//		std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; 
+		}
+		newPattern->forceInputSilence();
 
 				if(patternIndex == -1) //is unique returns -1 if the pattern is new . 	
 				{
@@ -217,6 +235,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 						// THEN WE ADD THE NEURON INTO THE NETWORK 
 						if( ! _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->hasNeuronCreatedFromPatter(patternIndex))
 						{
+														
 							// ADD NEURON TO THE MAPPED NETWORK IN UPPER REGION
 							_pathway->Region(_currentRegion +1)->Network(i)->addNeuron(newPattern);
 							_neuronAddedDuringExtention++;				
@@ -244,7 +263,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				}
 
 
-			std::cout << "NUMBER OF NEURONS IN HIGHER NETWORK : " << _pathway->Region(_currentRegion+1)->Network(i)->getNumNeurons();
+			std::cout << "NUMBER OF NEURONS IN HIGHER NETWORK : " << _pathway->Region(_currentRegion+1)->Network(i)->getNumNeurons() << std::endl;
 
 		}
 	}
@@ -303,7 +322,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 			for(unsigned int i = 0 , feaNetworkIndex = 0; i < (_pathway->Region(_currentRegion)->getNumNetworks()/2 - _pathway->Region(_currentRegion)->getNumNetworks()%2 ) - 1;i+=2, feaNetworkIndex++)
 			{
 				std::cout << "NUM NETWORKS : "  <<  (_pathway->Region(_currentRegion)->getNumNetworks()/2) << std::endl;
-				std::cout << "FEATURE      : "  << feaNetworkIndex << "Index : " << i << std::endl;  
+				std::cout << "FEATURE      : "  << feaNetworkIndex << " Index : " << i << std::endl;  
 				std::cout << "NUM HORIZONTAOL : " << (_pathway->Region(_currentRegion)->getNumHorizontalNetworks()) << std::endl;   
 	
 	
@@ -337,28 +356,22 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				// THIS NEURON WILL BE PRESENT IN REGION ABOVE THE CURRENT REGION. 
 				neuron * newPattern = new neuron(_pathway->Region(_currentRegion + 1)->Network(feaNetworkIndex)->getNumNeurons(),feaNetworkIndex,_currentRegion + 1);
 
-				for(unsigned int k = 0 ; k < unitNetworks->size() ; k++) // GOING THROUGH THE 4 UNITS 
+			std::cout << " CREATING NEURON -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
+			
+			for(unsigned int k = 0 ; k < unitNetworks->size() ; k++) // GOING THROUGH THE 4 UNITS 
 				{
 					for(unsigned int j = 0 ; j < unitNetworks->at(k)->getNumNeurons()  ;j++) // Going through neurons in the network 
 					{
-					
-						temp->pattern[bitIndex] = unitNetworks->at(k)->Neuron(j)->getOutput();
+						// Bit index used to map the neuron from each network to a bit set. 
+						bitIndex++;
+				         	temp->pattern[bitIndex] = unitNetworks->at(k)->Neuron(j)->getOutput();
 					      if(temp->pattern[bitIndex])
 					      {
-						      std::cout << "Connecting with + weights " << std::endl;
 			 	 			newPattern->connectNeuron(unitNetworks->at(k)->Neuron(j),1);
 					      }	
 					     else
 					     {
-						      std::cout << "Connecting with -  weights " << std::endl;
 						newPattern->connectNeuron(unitNetworks->at(k)->Neuron(j),-1);
-						// Bit index used to map the neuron from each network to a bit set. 
-						bitIndex++;
-						if(__debug__)
-						{
-								std::cout << bitIndex << std::endl;
-							std::cout << "NUM NEURONS "  << unitNetworks->at(k)->getNumNeurons() << std::endl;
-						}
 					    } 
 					}
 				}
@@ -384,7 +397,19 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 					std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
 				}
 
-			if(patternIndex == -1) //is unique returns -1 if the pattern is new . 	
+
+
+
+		newPattern->tick(); // THIS STEP IS VERY IMPORTANT. WITHOUT IT , THE PREVIOUS LAYER WILL NOT BE RESET AND ALSO , THE NEURON HAS TO HAVE  OUTPUT WHEN THE NEXT REGION TRIES TO DECIDE WHETHER TO CONNECT POSITIVELY OR NEGATIVELY. 
+		if(__debug__)
+		{
+			std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; 
+		}	
+
+	      newPattern->forceInputSilence();	
+
+
+		if(patternIndex == -1) //is unique returns -1 if the pattern is new . 	
 				{
 					// IF THE PATTERN IS UNIQUE THEN WE CREATE A NEW NEURON . 
 					// IDEA create a new neuron only if the dot product between 

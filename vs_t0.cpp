@@ -15,10 +15,10 @@
 #include "pathway.h"
 #include <opencv2/opencv.hpp>
 
-#define STEP 500
+#define STEP 100
 #define N_IMAGES 3
 #define FOVEA_HEIGHT 300
-#define FOVEA_WIDTH 300		
+#define FOVEA_WIDTH 300
 #define FOVEA_STRIDE FOVEA_WIDTH - 1
 #define nNEURONS_HORIZONTAL 3 
 #define nNEURONS_VERTICAL 3 
@@ -82,17 +82,16 @@ int main(int argc , char ** argv)
 		    {
 			short val = myData[ i * _stride + j];
 			vec->push_back(val);	
-		//	printf("%d",val);
 		    }
 		}
 
 
 		// NOW WE CREATE THE SECTIONS THROUGH WHICH WE WANT TO MOVE .. 
 
-		visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
-		visionSystem->regionTick(0);
+	//	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
+	//	visionSystem->regionTick(0);
 			
-
+		bool ticked = false ; 
 
 		for(unsigned int region = 1 ; region < 4 ; region++)
 		{
@@ -112,11 +111,15 @@ int main(int argc , char ** argv)
 					}
 					
 					visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecFovea) ,vecFovea);
-					for(unsigned int tickTill = 0 ; tickTill < neuronFrameExtended.getExtendedTill() ; tickTill++)
-					{
-						visionSystem->regionTick(tickTill);
-					}
+				
+				if(region == 1)
+				{
+					ticked = true;
+					visionSystem->regionTick(0);
+				}
+
 					neuronFrameExtended.extend();
+
 				}
 				std::cout << "MOVED ALONG WIDTH" << std::endl;
 			}	

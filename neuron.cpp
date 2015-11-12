@@ -6,13 +6,12 @@
 
 //int neuron::_number;
 
-neuron::neuron(unsigned int id , unsigned int networkid , unsigned int regionid): error(true)
+neuron::neuron(unsigned int id , unsigned int networkid , unsigned int regionid): error(false)
 {
     _forced = false;
 
    
-    _nOutputs = 0 ; 
-
+    _nOutputs = 0 ;   
     /* TO ENSURE THAT RESETING IS DONE PROPERLY , 
      * WE DO NOT WANT TO RESET A NEURON IF IT HAS TO SEND OUTPUTS TO ANOTHER 
      * NEURON
@@ -27,7 +26,7 @@ neuron::neuron(unsigned int id , unsigned int networkid , unsigned int regionid)
     // FOR LEARNING
     _activityPos = 0 ;
 
-
+    _sense = false;
 
     // INDENTIFICATION
     _id = id;
@@ -38,9 +37,9 @@ neuron::neuron(unsigned int id , unsigned int networkid , unsigned int regionid)
 
     if (__debug__)
     { 
-	    std::cout << "CREATE NEURON: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
+	   // std::cout << "CREATE NEURON: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
     };
-    // Exclusively for network usage
+   // Exclusively for network usage
     _ticked = false;
 }
 
@@ -127,20 +126,20 @@ The handler should call this function again , until it returns a true..
 bool neuron::tick()
 {
  
-       if(__debug__)
-       {	       
-	std::cout << "NEURON -> TICK -> INFO " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  " INPUT " << _inputBuffer << " #INPUTS" << _inputs->size() << " #OUTPUTS " << _nOutputsToSend <<  std::endl;  
-       };
+  if(__debug__)
+  {	       
+   //std::cout << "NEURON -> TICK -> INFO " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  " INPUT " << _inputBuffer << " #INPUTS" << _inputs->size() << " #OUTPUTS " << _nOutputsToSend <<  std::endl;  
+  };
 
     if(_sense)
    {
 	// We just have to check the input . if the inputbuffer is on. we send an impulse. 
            _outputBuffer = _inputBuffer; 
 	   
-	if(__debug__)
-	{	
-		std::cout << "NEURON -> TICK -> SENSE  " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  std::endl;  
-	}
+if(__debug__)
+{	
+//	std::cout << "NEURON -> TICK -> SENSE  " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  std::endl;  
+}
         	_readyForTick=true;
 	    // FOR LEARNING ...
 	    insertToActivity(_outputBuffer);
@@ -191,18 +190,18 @@ bool neuron::tick()
         // To simulate the passage of time..
         // After this neuron has got the stimulus , the previous neuron goes cold.
         
-	
-	if(std::get<0>(i)->getOutput())// we only reset if there is an output. Otherwise no need to reset
-	{	  // This condition is very important , it prevents false resetting
-		  // If I set up an oscillator , and I connect one of the oscillating nuerons (2) to another. 
-		  // The number of outputs =2  , but reset will be called on it 3 timer.
-		  // First by the neuron (1) when it fires, then the nueron which is connected to (2) 
-		  // then again by neuron (1) .. This meesing things up , the first reset by neuron 1 
-		  // is when neuron 2 is not high. This is simply a design... 
-
-
-		std::get<0>(i)->reset(); // Reset only occurs when all output nueron of the i the nueron has got				 the  value from the ith nueron
-	}	
+					//
+					//if(std::get<0>(i)->getOutput())// we only reset if there is an output. Otherwise no need to reset
+					//{	  // This condition is very important , it prevents false resetting
+					//	  // If I set up an oscillator , and I connect one of the oscillating nuerons (2) to another. 
+					//	  // The number of outputs =2  , but reset will be called on it 3 timer.
+					//	  // First by the neuron (1) when it fires, then the nueron which is connected to (2) 
+					//	  // then again by neuron (1) .. This meesing things up , the first reset by neuron 1 
+					//	  // is when neuron 2 is not high. This is simply a design... 
+					//
+					//
+	std::get<0>(i)->reset(); // Reset only occurs when all output nueron of the i the nueron has got				 the  value from the ith nueron
+					//	}	
     }
     _readyForTick = true; // Input all ready.. Not concerned whether inputs are ready.. 
     // A more real time model. More like real neurons. 
@@ -210,6 +209,10 @@ bool neuron::tick()
     // try to make sure that their inputs all have recieved their inputs.
     // When the inputs have received their inputs, then the value of this neuron will also
     // change... 
+
+    if(__debug__)
+	std::cout << "POTENTIAL : " << _potential << std::endl; 
+
 
     // intially Simple.
     if (_potential >= _threshold)
@@ -226,16 +229,16 @@ bool neuron::tick()
     
     _outputBuffer = _inputBuffer; // We can make this more compilated if required.. 
 
-    if (__debug__)
-    {  	
-  	std::cout << "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK OUTPUT " << _outputBuffer << std::endl;
-    };
+   if (__debug__)
+   {  	
+ //	std::cout << "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK OUTPUT " << _outputBuffer << std::endl;
+   };
     // FOR LEARNING ...
     insertToActivity(_outputBuffer);
-    if(__debug__) 
-    {
-  	std::cout <<  "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK ACTIVITY HISTORY : " << _activity << std::endl;
-    };
+  if(__debug__) 
+   {
+ //	std::cout <<  "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK ACTIVITY HISTORY : " << _activity << std::endl;
+   };
 
 
     _ticked = true;// FOR NETWORK USAGE ONLY
@@ -255,26 +258,8 @@ void neuron::reset()
     { 
   		std::cout <<"NEURON -> RESET" << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " BEFORE : " << _outputBuffer << " #OUTPUTS : " << _nOutputsToSend ;  
     };
-    if (_forced) // Once the force neruon has started the network , we no longer assume that the start neuron spikes..
-    {
-         if (_nOutputsToSend <= 1)
-        {
-            // All the outputs have received the input
-            // Now the current neuron goes cold.
-            // Fires only if new input during the tick...
-            _readyForTick = true; // Force Nueron Runs only once.. 
-	    _inputBuffer = FLAT; 
-            _outputBuffer = FLAT;
-        }
-	else
-	{
-	// There are still output that has to receive this input so we wait.... 	
-             _nOutputsToSend--;
-	}
-        }
-    else
-    {
-        if (_nOutputsToSend <= 1) // Not zero but 1 . If only one neuron need the input 
+   
+    if (_nOutputsToSend <= 1) // Not zero but 1 . If only one neuron need the input 
 		// After it has gotten it , and it call reset on this neuron
 		// The neuron should reset itself !.... 
         {
@@ -293,7 +278,7 @@ void neuron::reset()
 		// There are still output that has to receive this input so we wait.... 	
              _nOutputsToSend--;
 	}
-    }
+    
     if (__debug__)
     {
 	    std::cout << "AFTER: " << _outputBuffer << std::endl;
@@ -302,15 +287,7 @@ void neuron::reset()
 
 
 
-void neuron::forceNeuron(bool _f){
-    if (_f)_forced = _f;
-    else
-    {
-        _forced = _f;
-        _readyForTick = true;
-    }
-};
-
+    
 // INEFFICEINT
 bool neuron::changeInputWeight(unsigned int inputID, float weight)
 {
@@ -360,16 +337,16 @@ void neuron::stimulus()
 {
 	if(_sense)
 	{
-		if(__debug__)
-		{
-
-		    std::cout << "SETTING STIMULUS: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
-		}
+//	if(__debug__)
+//	{
+//
+//	    std::cout << "SETTING STIMULUS: " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << std::endl; 
+//	}
    		 _inputBuffer = SPIKE; // This will be made low by the tick progress..
 	}
 	else
 	{
-		debug("Cannot Provide Stimulus to a non spike Nueron");
+		std::cout << "Cannot Provide Stimulus to a non spike Nueron" << std::endl;
 	}
 }
 
@@ -386,9 +363,15 @@ void neuron::setInputneuron(neuron* _neuron, double _weight)
 {
     _inputs->push_back(std::make_tuple(_neuron, _weight)); // Only store pointers to neuron, 
     							  //do not store the actual neuron.
+    char temp ;
+    if(_weight > 0 )
+	    temp = '+';
+    else
+	    temp = '-';
+
     if (__debug__) 
     {
-	    std::cout  << "CONNECTING : " << "TO->"<<  _regionid << " : " <<  _networkid  <<  " : "  << _id << "  FROM -> " << _neuron->getRegionId()  << " : " << _neuron->getNetworkId() << " : " << _neuron->getId() << std::endl ; 
+	    std::cout  << "CONNECTING : " << "TO->"<<  _regionid << " : " <<  _networkid  <<  " : "  << _id << "  FROM -> " << _neuron->getRegionId()  << " : " << _neuron->getNetworkId() << " : " << _neuron->getId() << "WEIGHT : " <<  temp << std::endl ; 
     };
 
 }
@@ -400,6 +383,39 @@ void neuron::notRequiredAsInput()
 	_nOutputs--;
 	_nOutputsToSend = _nOutputs;
 }
+
+
+
+/*
+ * A HACK FOR NFE_L 
+ *
+ *
+ */
+void neuron::forceSilence()
+{
+	_outputBuffer =  FLAT;
+	_inputBuffer = FLAT; 
+	_readyForTick = false ; // it will have to be ticked again. before it can be used. 
+
+}
+
+
+/*
+ *
+ * HACK FOR NFE_L
+ *
+ */
+void neuron::forceInputSilence()
+{
+	for(size_t i =0 ; i < _inputs->size();i++)
+	{
+        	std::get<0>( _inputs->at(i) )->forceSilence();
+	}
+}
+
+
+
+
 
 
 
