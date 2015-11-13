@@ -46,9 +46,9 @@ int main(int argc , char ** argv)
     }
 
 	std::vector<Mat> images(0);
-    for (unsigned int i = 1 ; i <= argc; i++)
+    for (unsigned int i = 1 ; i < argc; i++)
     {
-	Mat ima = imread(argv[i],1);
+	 Mat ima = imread(argv[i],1);
 	images.push_back(ima);
     }
    
@@ -62,7 +62,7 @@ int main(int argc , char ** argv)
    
     for (unsigned int i = 0 ; i < images.size(); i++)
     {
-	    if ( !images[i].data )
+	    if ( !images.at(i).data )
 	    {
 		printf("No image data \n");
 		return -1;
@@ -91,7 +91,6 @@ int main(int argc , char ** argv)
 	//	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
 	//	visionSystem->regionTick(0);
 			
-		bool ticked = false ; 
 
 		for(unsigned int region = 1 ; region < 4 ; region++)
 		{
@@ -112,13 +111,12 @@ int main(int argc , char ** argv)
 					
 					visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecFovea) ,vecFovea);
 				
-				if(region == 1)
+				for(unsigned int tickTill  = 0 ; tickTill  < region ; tickTill++)
 				{
-					ticked = true;
-					visionSystem->regionTick(0);
-				}
-
-					neuronFrameExtended.extend();
+					visionSystem->regionTick(tickTill);
+				}	
+					
+				neuronFrameExtended.extend();
 
 				}
 				std::cout << "MOVED ALONG WIDTH" << std::endl;
@@ -129,13 +127,12 @@ int main(int argc , char ** argv)
 
 		}
 		
-
+	std::cout << "MOVING TO NEXT IMAGE ###################################################################################################################" <<std::endl;
 
     }
    
 	
 	return 0 ; 
-
 
 }
 
