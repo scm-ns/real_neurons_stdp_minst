@@ -1,7 +1,7 @@
 #include "pathway.h"
 
 
-pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronInBaseUnitVertical , unsigned int n_NeuronInBaseUnitHorizonal):error(true)
+pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronInBaseUnitVertical , unsigned int n_NeuronInBaseUnitHorizonal):error(false)
 {
 	_hSize = hSize; _vSize=vSize; _nRegion = 0;
 	_hNetworkSize = n_NeuronInBaseUnitHorizonal; _vNetworkSize = n_NeuronInBaseUnitVertical;

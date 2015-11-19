@@ -7,7 +7,7 @@
 #define N_NETWORKS_MERGED 4
 // NUMBER OF NETWORKS MERGED IN ABOVE LAYERS
 #define INITIAL_REGION_SIMILARITY_THRESHOLD 0.2
-#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 5
+#define INITIAL_REGION_PATTERN_TO_NEURON_FREQUENCY 10
 #define NEXT_REGION_SIMILARITY_THRESHOLD_INCREASE 0.01 
 // FOR HIGHER REGIONS WE INCREASE THE SIMILARITY THRESHOLD
 #define NEXT_REGION_PATTERN_TO_NEURON_FREQUENCY_DECREASE 1
@@ -69,7 +69,16 @@ class nfe_l:public error
 		 * The user will force on over ride telling it to move to the next layer . 
 		 */
 		void moveNextRegion(); 
-	
+
+/*
+ * moves back to the base region , so that we can extend over a new image. 
+ *
+ *
+ *
+ *
+ *
+ */
+		void moveToBase();	
 
 		/* Use for fine grained control. specify the region to which to extend. 
 		 * What if the region is too high up , return false. don't extend.
@@ -96,7 +105,7 @@ class nfe_l:public error
 		// They are reset by calling the extend functon
 		unsigned int neuronsAddedDuringExtend(){return _neuronAddedDuringExtention;};
 		unsigned int informationAddedDuringExtend(){return _informationAddedDuringExtention;};
-		unsigned int getExtendedTill(){return _extendedTill;};
+		unsigned int getExtendedTill(){return _pathwayBuildTillRegion;};
 	private:
 		pathway * _pathway;
 		std::vector<featureKeeperVec*> * _patternInPathway;
@@ -146,7 +155,7 @@ class nfe_l:public error
 
 
 
-		unsigned int _extendedTill; 
+		unsigned int _pathwayBuildTillRegion; 
 		// THIS VARIABLE KEEPS TRACK OF HOW MANY REGIONS HAVE BEEN CREATED
 		// EACH REGION WILL BE MAPPED TO HSI 
 		// SO IF REGION 1 IS BUILD EXTENDEDTILL WILL HAVE A VALUE OF 1 
@@ -155,7 +164,11 @@ class nfe_l:public error
 		// CREATED THE REGION AND CREATED THE REQUIRED FEATURE KEEPERS. 
 
 
-		unsigned int _totalNumberOfNueronsAdded; 
+		unsigned int _totalNumberOfNueronsAddedRegion; 
+
+
+
+
 }; 
 
 #endif
@@ -224,4 +237,15 @@ class nfe_l:public error
  *
  *
  */
+
+
+
+
+
+
+
+
+
+
+
 

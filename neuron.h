@@ -9,6 +9,11 @@
 */
 
 #define ACTIVITY 40
+#define VAL_FOR_FIRING 1.25
+#define MIN_THRES_DEFAULT_VAL 0.1 // IF WE ARE NO POSITIVE CONNECTIONS, THEY WE PUT A SMALL
+			//WEIGHT TO PREVENT IT FROM BEIGN INF. 
+
+
 
 #include <vector>
 #include <iostream>
@@ -49,16 +54,13 @@ public:
     
     bool readyForTick(){ return _readyForTick; };
     unsigned int getNOutputToSend(){ return _nOutputsToSend; };
-    unsigned int getNInputNeuron(){ return _inputs->size() ;};
+    unsigned int getNumInputs(){ return _inputs->size() ;};
     FIRINGBIT getOutput(){ return _outputBuffer; }
     FIRINGBIT getInput(){ return _inputBuffer; }
 
     // After the output Neuron has received the input , may be current neuron should go to a state of not firing..
     void reset();
-    double getInputWeight(unsigned int inputID);
-    bool changeInputWeight(unsigned int inputID, float weight); // Specify the input connection and the new weight..
-
-    unsigned int getId(){ return _id; };
+       unsigned int getId(){ return _id; };
     unsigned int getNetworkId()	{return _networkid;};
     unsigned int getRegionId(){return _regionid;};
     void forceNeuron(bool _f);
@@ -80,6 +82,14 @@ public:
 
     // FOR NFE - L 
     int8_t getLevel(){return _level;};
+
+   // FOR MDL MDL
+    float getInputWeight(unsigned int inputID);
+    void changeInputWeight(unsigned int inputID, float weight); // Specify the input connection and the new weight..
+    void holdValue(); 
+    void unHoldValue();
+
+    void modulate(); 
 
 // State..
 private:

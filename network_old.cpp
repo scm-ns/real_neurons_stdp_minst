@@ -59,31 +59,50 @@ bool network::systemTick()
                 _networkTicked = false; 
         }
     }
-    
-   if (!_networkTicked)
+/*
+ *BEWARE : THIS WILL NOT CALL SYSTEM TICK RECURSIVELY IF THE LAST NEURON IS NOT TICKED.
+ * 	   THIS IS POOR DESIGN. WE NEED SOME WAY TO WAY TO ENSURE THAT WE DO NOT SKIP SOME 
+ * 	   NEURONS FROM TICKING 
+ *
+ * 	   CURRENT HACK : MAKE SURE ALL THE NEURONS ARE CONNECTED. SO IF SOMEONE IS NOT CONNECTED 
+ * 	   OTHERS WILL NOT BE ABLE TO FUNCTION PROPERLY. I WILL USE THREADING TO MAKE THIS FASTER 
+ * 	   LATER ON. 
+ * 	  
+ *
+ */
+
+
+
+    if (!_networkTicked)
     {
+        /// we call this function again.
+        // will it lead to infinite recursion.
+        // No as in each call more and more of the neurons will be ticked.
         _networkTicked = systemTick();
     }
 
     for (auto i : *_neurons)
     {
+       if(_starter){ if (i->getId() == _startNeuron) continue;} // Ensure that the starter neuron is only ticked once. This prevents the reset , which allows for the next tick.
         i->resetTicked();// for the next network tick..
     }
     
-    return _networkTicked;
+    return _networkTicked;// In truth this is not needed . We will keep repeating until this is tue. So the return value will always be true. But simply for design purposes... 
 }
 
 
 void network::addNeuron()
 {
     neuron *n = new neuron(_neurons->size(), _id ,_regionid); 
+    			// New neuron will have a id , 1 layer than the id of previous 
+			// size does +1 
     _nNeurons++;
     _neurons->push_back(n);
-	    if (__debug__)
-		 {
-		   
-			std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id <<  " NEURON ADDED NEURON ID -> " << n->getRegionId() << " : " << n->getNetworkId() << " : " << n->getId() << std::endl ;
-		}
+    if (__debug__)
+   	 {
+	   
+   		std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id <<  " NEURON ADDED NEURON ID -> " << n->getRegionId() << " : " << n->getNetworkId() << " : " << n->getId() << std::endl ;
+	}
 }
 
 
@@ -111,7 +130,18 @@ Allow the user to make changes to the neuron...
 
 neuron* network::Neuron(unsigned int id)
 {
+   // if (_neurons->at(id)->getId() == id)
     return (_neurons->at(id));
+  /*  else // Find
+    {
+        for (auto i : *_neurons)
+        {
+            if (i->getId() == id)
+            {
+                return i;
+            }
+        }
+    }*/
 }
 
 /*
@@ -154,10 +184,20 @@ void network::networkUnHoldValue()
 }
 
 
-void network::networkForceSilence()
-{
-	for(auto neuron_ : *_neurons)
-	{
-		neuron_->forceSilence();	
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

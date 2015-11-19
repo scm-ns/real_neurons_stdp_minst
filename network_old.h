@@ -43,10 +43,6 @@ public:
     bool  networkForceReset();
     void  networkHoldValue();
     void networkUnHoldValue();
-    void networkForceSilence(); 
-
-
-
 private:
 	// IDENTIFICATION 
     unsigned int _id; // ID OF THE NETWORK. HELPFUL WHEN USING MULTIPLE NETWORKS. 

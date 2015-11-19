@@ -1,7 +1,7 @@
 #include "region.h"
 
 
-region::region(unsigned int id,   unsigned int nNetworks, unsigned int nNeuronsNetwork):error(true)
+region::region(unsigned int id,   unsigned int nNetworks, unsigned int nNeuronsNetwork):error(false)
 {
 	if(__debug__){debugN("CREATED REGION");};
 	_structure = new std::vector<network*>(nNetworks); 
@@ -38,8 +38,16 @@ bool region::regionTick()
 	return result;
 }
 
-
-
+bool region::regionForceReset()
+{
+	bool result = true;
+	for(auto *i : *_structure)
+	{
+		bool temp  = i->networkForceReset();
+		if(!temp) result = temp;
+	}
+	return result;
+}
 
 network* region::Network(unsigned int pos)
 {
@@ -49,3 +57,102 @@ network* region::Network(unsigned int pos)
 	}
 	return _structure->at(pos); // THE CALLER SHOULD BE SENSIBLE IN CALLING THIS.. 
 }
+
+/*
+ * WE GO OVER ALL THE NETWROKS AND ADD THE NUMBER OF NUERONS IN EACH OF THEM 
+ *
+ *
+ */
+unsigned int region::getTotalNumNeurons()
+{
+	unsigned int num  = 0 ; 
+	for(auto *i : *_structure)
+	{
+		num += i->getNumNeurons();
+	}
+	return num ; 
+}
+
+
+
+std::vector<bool>* region::getRegionActivity()
+{
+	std::vector<bool> * activity = new std::vector<bool>(0) ; 
+	for(auto *network_ : *_structure)
+	{
+		for(unsigned int neuron_  = 0 ; neuron_ < network_->getNumNeurons() ; neuron_++)
+		{
+			activity->push_back(network_->Neuron(neuron_)->getOutput()); 	
+		}
+	}
+	return activity; 
+}
+
+
+void region::regionHoldValue()
+{
+	for(auto *network_ : *_structure)
+	{
+		network_->networkHoldValue();
+
+	}
+}
+
+
+void region::regionUnHoldValue()
+{
+	for(auto *network_ : *_structure)
+	{
+		network_->networkUnHoldValue();
+	}
+}
+
+
+unsigned int  region::getNumActiveNeurons()
+{
+	unsigned int numActiveNeurons = 0 ; 
+	for(auto *network_ : *_structure)
+	{
+		for(unsigned int neuron_  = 0 ; neuron_ < network_->getNumNeurons() ; neuron_++)
+		{
+		      if (network_->Neuron(neuron_)->getOutput())
+			      ++numActiveNeurons;
+		}
+	}
+	return numActiveNeurons; 
+}
+
+
+
+
+unsigned int  region::getNumInActiveNeurons()
+{
+	unsigned int numInActiveNeurons = 0 ; 
+	for(auto *network_ : *_structure)
+	{
+		for(unsigned int neuron_  = 0 ; neuron_ < network_->getNumNeurons() ; neuron_++)
+		{
+		      if (!network_->Neuron(neuron_)->getOutput())
+			      ++numInActiveNeurons;
+		}
+	}
+	return numInActiveNeurons; 
+}
+
+
+
+
+
+void region::regionForceSilence()
+{
+	for(auto *network_ : *_structure)
+	{
+		network_->networkForceSilence();
+	}
+}
+
+
+
+
+
+

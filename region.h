@@ -24,6 +24,7 @@ class region: public error
 		~region(); // Should I use smart pointers ? Difficulties with arm compiler may be?
 	 	network* Network(unsigned int pos);// Gives us the pointer to network at position pos. 
 		unsigned int getNumNetworks(){ return _structure->size();};
+		unsigned int getTotalNumNeurons();
 		unsigned int getID(){return _id;};	
 		/*Should I call systemTick on each network ? Is the order necessary 
 		 * No it is not, the networks are currently independent. 
@@ -40,6 +41,22 @@ class region: public error
 		void setNumVerticalNetworks(unsigned int t){_nVerticalNetworks = t;};
 		unsigned int getNumHorizontalNetworks(){ return _nHorizontalNetworks;};
 		unsigned int getNumVerticalNetworks(){ return _nVerticalNetworks;};
+		
+		/*
+		 * GOES THROUGH EACH NEURON IN THE REGION AND RECORDS THEIR ACTIVITY. 
+		 *
+		 *
+		 *
+		 */
+
+		std::vector<bool> * getRegionActivity();
+	        unsigned int getNumActiveNeurons(); 			
+		unsigned int getNumInActiveNeurons();
+
+		bool regionForceReset();
+		void regionHoldValue();
+		void regionUnHoldValue();
+		void regionForceSilence(); 
 	private:
 		std::vector<network*>* _structure; 
 		unsigned int _nNetworks; // Acts as id to networks and keeps track of number. 
