@@ -27,26 +27,12 @@ region::~region()
 // Copy Constructor ? Try implementing. These structres might be copied by the std::vector.
 
 
-bool region::regionTick()
+void region::regionTick()
 {
-	bool result = true;
-	for(auto *i : *_structure)
+	for(unsigned int network_ = 0  ; network_ < _structure->size(); network_++)
 	{
-		bool temp  = i->systemTick();
-		if(!temp) result = temp;
+		 Network(network_)->networkTick();
 	}
-	return result;
-}
-
-bool region::regionForceReset()
-{
-	bool result = true;
-	for(auto *i : *_structure)
-	{
-		bool temp  = i->networkForceReset();
-		if(!temp) result = temp;
-	}
-	return result;
 }
 
 network* region::Network(unsigned int pos)
@@ -89,25 +75,6 @@ std::vector<bool>* region::getRegionActivity()
 }
 
 
-void region::regionHoldValue()
-{
-	for(auto *network_ : *_structure)
-	{
-		network_->networkHoldValue();
-
-	}
-}
-
-
-void region::regionUnHoldValue()
-{
-	for(auto *network_ : *_structure)
-	{
-		network_->networkUnHoldValue();
-	}
-}
-
-
 unsigned int  region::getNumActiveNeurons()
 {
 	unsigned int numActiveNeurons = 0 ; 
@@ -143,16 +110,14 @@ unsigned int  region::getNumInActiveNeurons()
 
 
 
-void region::regionForceSilence()
+void region::regionReset()
 {
-	for(auto *network_ : *_structure)
+	for(unsigned int network_ = 0  ; network_ < _structure->size(); network_++)
 	{
-		network_->networkForceSilence();
+		 Network(network_)->networkReset();
+		 //networkResetstd::cout << "REGION : NETWORK : " <<network_ << std::endl ; 
 	}
 }
-
-
-
 
 
 

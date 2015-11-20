@@ -128,9 +128,66 @@ void pathway::addRegion(unsigned int nNetworks)
        _nRegion++;
 }
 
+/*
+ *
+ * PROPOGATE THE SIGNAL FROM THE FIRST REGION TO THE LAST REGION. 
+ * SIGNAL WILL BE PRESENT IN THE LAST REGION. 
+ *
+ *
+ */
+void pathway::propogateSignal()
+{
+	// PROPOGATE THE SINGAL ,FROM BOTTOM TO TOP THEN RESET FROM BOTTOM TO TOP. 
+	for(unsigned int region_ = 0 ;  region_ < _structure->size() ; ++region_)
+	{
+		if(__debug__)
+			std::cout << "PATHWAY TICKING : " << region_ << std::endl ; 
+		Region(region_)->regionTick();	
+	};
+	for(unsigned int region_ = 0 ;  region_ < _structure->size() - 1; ++region_)
+	{
+		Region(region_)->regionReset();	
+	};
+	// THIS IS A SIMPLIFICATION. 
+}
+/*
+ *  PROPOGATES SINGAL TO THE SPECIFIED REGION , BUT NOT INCLUDING. 
+ *
+ *
+ *
+ */
+void pathway::propogateSignalTo(unsigned int region)
+{
+	// PROPOGATE THE SINGAL ,FROM BOTTOM TO TOP THEN RESET FROM BOTTOM TO TOP. 
+	for(unsigned int region_ = 0 ;  region_ < region ; ++region_)
+	{
+		if(__debug__)
+			std::cout << "PATHWAY TICKING : " << region_ << std::endl ; 
+		Region(region_)->regionTick();	
+	};
+	for(unsigned int region_ = 0 ;  region_ < region - 1; ++region_)
+	{
+		Region(region_)->regionReset();	
+	};
+	// THIS IS A SIMPLIFICATION. 
+}
 
 
 
 
 
+void pathway::pathwayReset()
+{
+	for(unsigned int region_ = 0 ; region_ < _structure->size() ; ++region_)
+	{
+		Region(region_)->regionReset();
+	}
 
+}
+
+
+
+void pathway::resetLastRegion()
+{
+	Region(_structure->size() -1 )->regionReset(); 
+}

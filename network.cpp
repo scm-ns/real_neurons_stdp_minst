@@ -9,7 +9,6 @@ network::network(unsigned int nNeurons, unsigned int id , unsigned int region):e
     _networkTicked = false;
     __debug__ = false;
     _neurons = new std::vector<neuron*>(nNeurons);
-    _startNeuron = 0; // Assume that the zero th neuron is used to start the network..
     if(__debug__)
     {
 	std::cout << "NETWORK CREATED : ID -> " << _regionid << " : " <<  _id << std::endl;
@@ -41,37 +40,29 @@ network::~network()
 Keeps on doing the systemTick , until all neurons has responded to tick and has progressed to the next state..
 
 */
-bool network::systemTick()
+void network::networkTick()
 {
-    if(__debug__)
+   if(__debug__)
     {
-   	std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id << std::endl ;
+   	std::cout << "network -> tick -> id -> " << _regionid << " : " << _id << std::endl ;
     }
 
-     bool temp  = false;
-    _networkTicked = true;
-   for (auto i : *_neurons)
-    {
-        if (!i->isTickComplete()) // Ensure that neuron is not ticked multiple times in a single network tick.
-        {
-            temp  = i->tick();
-	    if (!temp) // If the neuron has not ticked , then the inputs are not set up.. 
-                _networkTicked = false; 
-        }
-    }
+	for(unsigned int neuron_ = 0 ; neuron_ < _neurons->size() ; neuron_++)
+	{
+		Neuron(neuron_)->tick(); 
+	}
     
-   if (!_networkTicked)
-    {
-        _networkTicked = systemTick();
-    }
-
-    for (auto i : *_neurons)
-    {
-        i->resetTicked();// for the next network tick..
-    }
-    
-    return _networkTicked;
 }
+
+
+void network::networkReset()
+{
+	for(unsigned int neuron_ = 0 ; neuron_ < _neurons->size() ; ++neuron_) 
+	{
+		Neuron(neuron_)->reset(); 	
+	}
+}
+
 
 
 void network::addNeuron()
@@ -84,16 +75,6 @@ void network::addNeuron()
 		   
 			std::cout << "NETWORK -> ID -> " << _regionid << " : " << _id <<  " NEURON ADDED NEURON ID -> " << n->getRegionId() << " : " << n->getNetworkId() << " : " << n->getId() << std::endl ;
 		}
-}
-
-
-bool network::networkForceReset()
-{
-	for(auto neuron_ : * _neurons)
-	{
-		neuron_->reset(); 	
-	}
-	return true ; 
 }
 
 
@@ -122,42 +103,8 @@ neuron* network::Neuron(unsigned int id)
 void network::connect(int n1, int n2, double weight)
 {
     _neurons->at(n2)->setInputneuron((_neurons->at(n1)), weight);
-    _neurons->at(n1)->requiredAsInput();
     if (__debug__) { debug("ID");debugN(_id);debugN("NEURON CONNECTED"); }
 }
 
 
-void network::setNetworkDebug(bool f)
-{
-    __debug__ = f;
-    for (auto i : *_neurons)
-    {
-        i->setDebug(__debug__);
-    }
-}
 
-
-void network::networkHoldValue()
-{
-	for(auto neuron_ : *_neurons)
-	{
-		neuron_->holdValue();	
-	}
-}
-
-void network::networkUnHoldValue()
-{
-	for(auto neuron_ : *_neurons)
-	{
-		neuron_->unHoldValue();	
-	}
-}
-
-
-void network::networkForceSilence()
-{
-	for(auto neuron_ : *_neurons)
-	{
-		neuron_->forceSilence();	
-	}
-}

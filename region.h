@@ -32,8 +32,11 @@ class region: public error
 		 * Later on we might want to connect regions together , then the question of 
 		 * order of ticking will matter.... 
 		 */
-		bool regionTick(); 
-
+	        void  regionTick(); 
+	        void  regionReset(); 
+		
+		
+		
 		// They are simply used for book keeping. 
 		// the networks are stored in a linear vector 
 		// these signify how they are imagined to be mapped. 
@@ -53,10 +56,6 @@ class region: public error
 	        unsigned int getNumActiveNeurons(); 			
 		unsigned int getNumInActiveNeurons();
 
-		bool regionForceReset();
-		void regionHoldValue();
-		void regionUnHoldValue();
-		void regionForceSilence(); 
 	private:
 		std::vector<network*>* _structure; 
 		unsigned int _nNetworks; // Acts as id to networks and keeps track of number. 

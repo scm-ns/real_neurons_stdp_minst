@@ -94,11 +94,11 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 											// One to one mapping from region 0 to region 1 . Start simple. .. 
 		if(_pathwayBuildTillRegion ==  _currentRegion) // WE ARE EXTENDING THIS REGION FOR THE FIRST TIME.
 		{
-			if(__debug__)
-			{
-				debugN("Creating a new Region "); debug(_pathway->getNumRegions());
-			}
-			// One to one mapping from region 0 to region 1 . Start simple. .. 
+												if(__debug__)
+												{
+													debugN("Creating a new Region "); debug(_pathway->getNumRegions());
+												}
+				// One to one mapping from region 0 to region 1 . Start simple. .. 
 			_pathway->addRegion(_pathway->Region(_currentRegion)->getNumNetworks()); // Creating Region 1 ... 
 			
 			// We set the size of the new region . This will help in mapping for higher levels.
@@ -127,15 +127,13 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 						// REGIONS THIS MAPPING WILL BE DIFFERENT 
 						// THE CREATION OF THE NETWORKS IS HANDLED BY THE CONSTRUCTOR OF THE 
 						// REGION .. 		
-		
-
-		// IF WE HAVE ALREADY GONE THROUGH THE EXTENSION PROCESS FOR THIS REGION THEN WE DO NOT HAVE TO RECREATE THE FEATURE KEEPER FOR EACH NETWORK . WE HAVE TO INDEX 
-		// IT FROM THE FEATURE KEEPERS THAT WE CREATED EARLIER. 	
-	
-//		if(__debug__)
-//		{
-//			debugN("Going over a particular pattern");
-//		}		// Holds the features of the current network
+						// IF WE HAVE ALREADY GONE THROUGH THE EXTENSION PROCESS FOR THIS REGION THEN WE DO NOT HAVE TO RECREATE THE FEATURE KEEPER FOR EACH NETWORK . WE HAVE TO INDEX 
+						// IT FROM THE FEATURE KEEPERS THAT WE CREATED EARLIER. 	
+														
+															if(__debug__)
+															{
+																debugN("Going over a particular pattern");
+															}		// Holds the features of the current network
 
 			if(_pathwayBuildTillRegion == _currentRegion) // If we have not extended this region before . 
 			{
@@ -154,8 +152,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 
 			if(__debug__)
 			{
-			std::cout << "Creating Neuron -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
-		
+				std::cout << "Creating Neuron -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
 			}
 			// Go through each neuron in the current network
 				for(unsigned int j = 0 ; j < _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() ; j++)
@@ -180,32 +177,31 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->isUniquePattern(temp);
 		
 
-		if(__debug__)
-		{
-			std::cout << temp->pattern << std::endl;
-	 		std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
-			if(patternIndex < 0)
-			{
-				std::cout << "NOT SEEN BEFORE" <<std::endl;
-			}
-			else
-			{
-				std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->getFrequency(patternIndex) << std::endl;
-				std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
-			}
-			std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
-	//		std::cout << "NUMBER OF NEURONS IN NETWORK : " << _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() << std::endl;
-		}
+									if(__debug__)
+									{
+										std::cout << temp->pattern << std::endl;
+										std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
+										if(patternIndex < 0)
+										{
+											std::cout << "NOT SEEN BEFORE" <<std::endl;
+										}
+										else
+										{
+											std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->getFrequency(patternIndex) << std::endl;
+											std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
+										}
+										std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
+								//		std::cout << "NUMBER OF NEURONS IN NETWORK : " << _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() << std::endl;
+									}
 
 
-		newPattern->tick(); // THIS STEP IS VERY IMPORTANT. WITHOUT IT , THE PREVIOUS LAYER WILL NOT BE RESET AND ALSO , THE NEURON HAS TO HAVE  OUTPUT WHEN THE NEXT REGION TRIES TO DECIDE WHETHER TO CONNECT POSITIVELY OR NEGATIVELY. 
+		newPattern->tick(); // THIS Sets up a value for the new pattern. Also resetting will be done  outside . EXTERNALLY THE RESETTING OF THE LAST LAYER HAS TO BE CALLED. 
+					// THIS TECHNIQUE REDUCES COMPLEXITY. 
 
-
-		if(__debug__)
-		{
-	//		std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; 
-		}
-		newPattern->forceInputSilence();
+									if(__debug__)
+									{
+										std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; 
+									}
 
 				if(patternIndex == -1) //is unique returns -1 if the pattern is new . 	
 				{
@@ -250,11 +246,11 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 							_neuronAddedDuringExtention++;				
 							// PATTERN HAS BEEN CONVERTED INTO A NEURON 
 							_patternInPathway->at(_currentRegion)->FeatureKeeper(i)->neuronCreatedFromPattern(patternIndex);
-							if(__debug__)
-							{
-								debugN("Neuron Added");
+														if(__debug__)
+														{
+															debugN("Neuron Added");
 
-							}
+														}
 						}
 						else  // If we are not adding this pattern because a neuron has already been created for this pattern 
 						{
@@ -271,10 +267,10 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 					}
 				}
 
-			if(__debug__)
-			{
-			std::cout << "NUMBER OF NEURONS IN HIGHER NETWORK : " << _pathway->Region(_currentRegion+1)->Network(i)->getNumNeurons() << std::endl;
-			}
+									if(__debug__)
+									{
+									std::cout << "NUMBER OF NEURONS IN HIGHER NETWORK : " << _pathway->Region(_currentRegion+1)->Network(i)->getNumNeurons() << std::endl;
+									}
 		}
 	}
 	else
@@ -283,19 +279,19 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 		{
 	
 		
-		
-			// IF THE CURRENT REGION IS NOT 1 , THEN FOR REGION N+1 WE HAVE TO COMBINE 4 NETWORKS IN REGION N
-		// INTO A SINGLE REGION IN REGION N + 1 . THE PROBLEMS ARE , WILL THE TOTAL NUMBER OF NUERONS IN THE 4 NETWORKS BE LESS THAN THE MAXIMUM NUMBER OF PATTENS . 
-		// AND IS THIS A GOOD DESIGN ? 
+							
+									// IF THE CURRENT REGION IS NOT 1 , THEN FOR REGION N+1 WE HAVE TO COMBINE 4 NETWORKS IN REGION N
+									// INTO A SINGLE REGION IN REGION N + 1 . THE PROBLEMS ARE , WILL THE TOTAL NUMBER OF NUERONS IN THE 4 NETWORKS BE LESS THAN THE MAXIMUM NUMBER OF PATTENS . 
+									// AND IS THIS A GOOD DESIGN ? 
 
-			// One to one mapping from region i  to region i+1 . Start simple. .. 
-			// One to _nNetworksMerged  mapping from region 0 to region 1 . Start simple. ..
-			if(__debug__)
-			{
-				debugN("Creating a new Region "); debug(_pathway->getNumRegions());
-			}
-			
-				_pathway->addRegion(_pathway->Region(_currentRegion )->getNumNetworks()/_nNetworksMerged );
+									// One to one mapping from region i  to region i+1 . Start simple. .. 
+									// One to _nNetworksMerged  mapping from region 0 to region 1 . Start simple. ..
+									if(__debug__)
+									{
+										debugN("Creating a new Region "); debug(_pathway->getNumRegions());
+									}
+								
+			_pathway->addRegion(_pathway->Region(_currentRegion )->getNumNetworks()/_nNetworksMerged );
 			 // THE ONLY WAY TO EXTEND A REGION IS IF THE _currentRegion is increased. 
 			// Region _currentRegion + 1 is created. or may be it was already crated in previous steps.  
 
@@ -313,11 +309,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 			
 			
 		}
-	
-					// COllects the 4 Networks into a unit . 
-		//			std::vector<network*> *unitNetworks = new std::vector<network*>(_nNetworksMerged);
-					// Now map the 4 networks into this unit... 
-			
+					
 			std::vector<network*> *unitNetworks = new std::vector<network*>(_nNetworksMerged);
 					// In order to get the local 4 networks , we go through the networks in the region in a
 					// particular way . 
@@ -334,13 +326,13 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 					// the 4 units will map to a single featureKeeper present in location fea of featureKeeperVec
 			for(unsigned int i = 0 , feaNetworkIndex = 0; i < (_pathway->Region(_currentRegion)->getNumNetworks()/2 - _pathway->Region(_currentRegion)->getNumNetworks()%2 ) - 1;i+=2, ++feaNetworkIndex)
 			{
-				if(__debug__ )
-				{
-				std::cout << "NUM NETWORKS : "  <<  (_pathway->Region(_currentRegion)->getNumNetworks()/2) << std::endl;
-				std::cout << "FEATURE      : "  << feaNetworkIndex << " Index : " << i << std::endl;  
-				std::cout << "NUM HORIZONTAOL : " << (_pathway->Region(_currentRegion)->getNumHorizontalNetworks()) << std::endl;   
-	
-				}
+												if(__debug__ )
+												{
+												std::cout << "NUM NETWORKS : "  <<  (_pathway->Region(_currentRegion)->getNumNetworks()/2) << std::endl;
+												std::cout << "FEATURE      : "  << feaNetworkIndex << " Index : " << i << std::endl;  
+												std::cout << "NUM HORIZONTAOL : " << (_pathway->Region(_currentRegion)->getNumHorizontalNetworks()) << std::endl;   
+									
+												}
 
 				unitNetworks->at(0) = _pathway->Region(_currentRegion)->Network(i);
 				unitNetworks->at(1) = _pathway->Region(_currentRegion)->Network(i+1);
@@ -371,11 +363,11 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				
 				// THIS NEURON WILL BE PRESENT IN REGION ABOVE THE CURRENT REGION. 
 				neuron * newPattern = new neuron(_pathway->Region(_currentRegion + 1)->Network(feaNetworkIndex)->getNumNeurons(),feaNetworkIndex,_currentRegion + 1);
-	
-				if(__debug__)
-				{
-			std::cout << " CREATING NEURON -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
-				}
+												
+															if(__debug__)
+															{
+														std::cout << " CREATING NEURON -> ID -> " << newPattern->getId() << " : " << newPattern->getNetworkId() << " : " << newPattern->getRegionId() << std::endl ; 
+															}
 
 			for(unsigned int k = 0 ; k < unitNetworks->size() ; k++) // GOING THROUGH THE 4 UNITS 
 				{
@@ -402,29 +394,29 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 	
 			//std::cout << temp->pattern << std::endl;
 		//		std::cout << "PATTERN : " <<  temp->pattern << std::endl;
-			if(__debug__)
-				{
-					std::cout << temp->pattern << std::endl;
-			 		std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
-					if(patternIndex < 0)
-					{
-						std::cout << "NOT SEEN BEFORE" <<std::endl;
-					}
-					else
-					{
-					std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) << std::endl;
-					std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(feaNetworkIndex)->getNumNeurons())<< std::endl;
-					}
-					std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
-				}
+												if(__debug__)
+													{
+														std::cout << temp->pattern << std::endl;
+														std::cout << "PATTERN INDEX : " << patternIndex << std::endl;
+														if(patternIndex < 0)
+														{
+															std::cout << "NOT SEEN BEFORE" <<std::endl;
+														}
+														else
+														{
+														std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) << std::endl;
+														std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(feaNetworkIndex)->getNumNeurons())<< std::endl;
+														}
+														std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
+													}
 
 
 
 
 		newPattern->tick(); // THIS STEP IS VERY IMPORTANT. WITHOUT IT , THE PREVIOUS LAYER WILL NOT BE RESET AND ALSO , THE NEURON HAS TO HAVE  OUTPUT WHEN THE NEXT REGION TRIES TO DECIDE WHETHER TO CONNECT POSITIVELY OR NEGATIVELY. 
-		if(__debug__)
-		{ std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; }	
-	      newPattern->forceInputSilence();	
+														if(__debug__)
+														{ std::cout << "TEST NEW PATTERN : " << newPattern->getOutput() << std::endl; }	
+												//	      newPattern->forceInputSilence();	
 
 
 		if(patternIndex == -1) //is unique returns -1 if the pattern is new . 	
@@ -456,7 +448,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 					_informationRepeatedDuringExtention++;
 					// We look at how many times we have seen this pattern 
 					// if the frequency is high , then I create a neuron .
-					if(_patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) >= (8)/_currentRegion)
+					if(_patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) >= (UPPER_REGION_PATTERN_TO_NEURON_FREQUENCY)/_currentRegion)
 					{
 						// IF THE PATTERN HAS NOT BEEN CONVERTED INTO A NEURON.									 ^^^^^^^^^^^^^
 						// 													DONE TO ENSURE THAT IN HIGHER LEVELS , EVEN SPARSE PATTERS ARE REMEMBERED. AT HIGHER LEVELS A PATTERN MIGHT NOT BE REPEATED SO OFTEN AS IN THE LOWER LEVELS.  
@@ -553,7 +545,6 @@ void nfe_l::moveToBase()
  * next region. 
  *
  */
-
 void nfe_l::moveToRegion(unsigned int region)
 {
 	if(_currentRegion == region)
@@ -573,22 +564,6 @@ void nfe_l::moveToRegion(unsigned int region)
 	   
 	   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

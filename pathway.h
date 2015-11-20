@@ -62,7 +62,9 @@ class pathway : public error{
        	       */
 		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
 		region * Region(unsigned int region);
+
 		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,short threshold , std::vector<short> *N);
+
 		void addRegion(unsigned int nNetworks );
 		void setID(int unsigned id){_id = id;};
 		unsigned int getID(){return _id;};
@@ -70,6 +72,10 @@ class pathway : public error{
 
 
 		void regionTick(unsigned int reg){ _structure->at(reg)->regionTick();	};
+		void propogateSignal();
+		void propogateSignalTo(unsigned int region) ; 
+		void pathwayReset();
+		void resetLastRegion();
 	private:
 		unsigned int _hSize ; 
 	        unsigned int _vSize; 	

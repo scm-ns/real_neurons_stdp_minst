@@ -17,8 +17,16 @@
 #include <opencv2/opencv.hpp>
 #include "crn.h"
 
+
+
+#include <string> 
+#include <iostream> 
+
 #define STEP 100
-#define N_IMAGES 3
+//#define N_IMAGES 	// N_IMAGES IS NOT REQUIRED. 
+#define N_TEST_IMAGES 0
+
+
 #define FOVEA_HEIGHT 300
 #define FOVEA_WIDTH 300
 #define FOVEA_STRIDE FOVEA_WIDTH - 1
@@ -36,6 +44,9 @@ void printRegion(std::vector<bool>* act_);
 
 float meanVecShort(std::vector<short> *vec);
 
+void printPathwayActivity(pathway * _vs , unsigned int reg);
+
+std::vector<short> *  getBWImage( Mat * image);
 
 int main(int argc , char ** argv)
 {
@@ -56,12 +67,12 @@ int main(int argc , char ** argv)
   // SETTING UP THE SINGLE PATHWAY THAT WILL BE USED IN THIS SETION AND LINKING IT WITH THE 
   // nfe_l 
    	pathway* visionSystem = new pathway(FOVEA_WIDTH,FOVEA_HEIGHT,nNEURONS_HORIZONTAL ,nNEURONS_VERTICAL );
-	visionSystem->setDebug(false);
+//	visionSystem->setDebug(false);
 	nfe_l neuronFrameExtended(visionSystem);
 
    
    
-    for (unsigned int i = 0 ; i < images.size() - 1 ; i++) // Saving the last image for testing .. 
+    for (unsigned int i = 0 ; i < images.size() - N_TEST_IMAGES ; i++) // Saving the last N_TEST_IMAGES for testing .. 
     {
 	    if ( !images.at(i).data )
 	    {
@@ -94,8 +105,6 @@ int main(int argc , char ** argv)
 
 		for(unsigned int region = 1 ; region < EXTEND_TILL_REGION ; region++)
 		{
-			
-			
 			std::cout << "STARING TO EXTEND REGION" << region   << std::endl  ; 
 
 
@@ -113,18 +122,21 @@ int main(int argc , char ** argv)
 						    vecFovea->push_back(vec->at( x * (FOVEA_STRIDE) + y)); // This creates a vector with the same size as fovea
 						}
 					}
-					
-					visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecFovea) ,vecFovea); 
 				
-				for(unsigned int tickTill  = 0 ; tickTill  < region ; tickTill++)
-				{
-					visionSystem->regionTick(tickTill);
-				}	// DOES NOT HANDLE THE TICKING OF THE BASE REGION. 	
-				
-			
-				neuronFrameExtended.extend();
+						
+			        visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecFovea) ,vecFovea); 
+				printPathwayActivity(visionSystem,region);
+				visionSystem->propogateSignalTo(region);	 // THIS BRINGS THE SIGNAL FROM THE FIRST LAYER TO THE LAST LAYER.. 
+				printPathwayActivity(visionSystem,region);
+									// EXTEND WILL TRY TO EXTRACT PATTERNS FROM THIS LAST LAYER. 
 
-				}
+				printPathwayActivity(visionSystem,region);
+				neuronFrameExtended.extend();
+				// AFTER THE LAST LAYER HAS BEEN USED FOR PATTERN EXTRACTION . RESET IT FOR FUTURE USE. 
+
+				visionSystem->Region(region - 1)->regionReset(); // DO NOT USE RESET LAST REGION. THAT IS WRONG. IN THIS FOR LOOP < WE MOVE FROM ONE REGION TO ANOHTER , THEN AGAIN GO BACK
+				printPathwayActivity(visionSystem,region);
+		        	}
 				std::cout << "FOEAVE MOVING TO A NEW LOCATION ON THE IMAGE" << std::endl;
 			}
 				
@@ -138,17 +150,9 @@ int main(int argc , char ** argv)
 
 		}
 		
-		std::cout << "MOVING TO NEXT IMAGE ###################################################################################################################" <<std::endl;
+		std::cout << "#################################################################### MOVING TO NEXT IMAGE ###################################################################################################################" <<std::endl;
     }
    
-
-
-    std::cout << "CURRENT STATE OF MACHINE" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
-
 
  std::cout << "###################################################################### TESTING PAHSE ################################################################################################" << std::endl;
 
@@ -156,158 +160,83 @@ int main(int argc , char ** argv)
 
 //	mdl corrector(visionSystem);  // DONE WITHIN NFE_L NOW. 
 //	corrector.modulate();	
-
-
-
-	Mat im_gray;
-	cvtColor(images[images.size() - 1],im_gray,CV_RGB2GRAY);
-	uint8_t *myData = im_gray.data;
-	int width = im_gray.cols;
-	int height = im_gray.rows;
-
-	std::vector<short>* vecTest = new std::vector<short>(0);
-	int _stride = im_gray.step;//in case cols != strides
-	for(int i = 0; i < height; i++)
-	{
-	    for(int j = 0; j < width; j++)
-	    {
-		short val = myData[ i * _stride + j];
-		vecTest->push_back(val);	
-	    }
-	}
-
-	std::cout << " INPUT 1 : " << std::endl ; 
- 	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-
-	// RESET NETWORK 	
-	visionSystem->Region(EXTEND_TILL_REGION - 1)->regionHoldValue();
-	visionSystem->Region(EXTEND_TILL_REGION - 1)->regionForceReset(); 
-	visionSystem->Region(EXTEND_TILL_REGION - 1)->regionTick(); 
-	std::cout << "BEFORE SETTING INPUT IMAGE " << std::endl ; 
-
-    std::cout << "CURRENT STATE OF MACHINE 1" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ;    
 	
-for(unsigned int region_ = 0 ; region_ < EXTEND_TILL_REGION ; ++region_)
-	{
-		visionSystem->Region(region_)->regionForceSilence();
-	}
-
-    std::cout << "CURRENT STATE OF MACHINE 1" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ;    
-
-	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
-
-	
-    std::cout << "CURRENT STATE OF MACHINE 2" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
-
-
-for(unsigned int region_ = 0 ; region_ < EXTEND_TILL_REGION ; ++region_)
-	{
-		visionSystem->regionTick(region_);
-	}
-	visionSystem->Region(EXTEND_TILL_REGION - 1)->regionUnHoldValue();
-
-    std::cout << "CURRENT STATE OF MACHINE 3" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
-
-
-
+ 	std::vector<neuron*> _sensitiveFeatures ; 
 
 	crn creator(visionSystem);	
-	neuron * featureNeuron = creator.conceptFromActivity(EXTEND_TILL_REGION -1 );
-	featureNeuron->setDebug(true);
-	featureNeuron->modulate();	
-	// THIS IS THE NEURON CORREPONDING TO A CONCEPT. 
-	//
-	// HOW TO TEST THIS ? IF I SHOW THE IMAGE AGAIN , THEN THIS NEURON SHOULD FIRE.THIS IS A LAME TEST , BUT LET AS START SIMPLE .
-	
-    std::cout << "CURRENT STATE OF MACHINE 4" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
-
-
-
- 	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	featureNeuron->tick();
-	
-    std::cout << "CURRENT STATE OF MACHINE 5" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
-
-
-std::cout << "TESTING NEURON " << featureNeuron->getOutput() << std::endl;
- //	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-
-	// NOW WE TEST THIS ON THE SAME IMAGE TO SEE IF THIS NEURON FIRES
-
-	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
-
-	for(unsigned int region_ = 0 ; region_ < EXTEND_TILL_REGION ; ++region_)
+	while(1)
 	{
-		visionSystem->regionTick(region_);
-	}
+		std::string testImageName; 
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+		std::cout << " ENTER NAME OF TEST IMAGE : " ; std::cin >> testImageName;  
+		Mat im = imread(testImageName,1);	
+		Mat im_gray ; 
+		cvtColor(im, im_gray, CV_RGB2GRAY);
+		uint8_t *myData = im_gray.data;
+		int width = im_gray.cols;
+		int height = im_gray.rows;
 
-     std::cout << "CURRENT STATE OF MACHINE 6" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
+		std::vector<short>* vecTest = new std::vector<short>(0);
+		int _stride = im_gray.step;//in case cols != strides
+		for(int i = 0; i < height; i++)
+		{
+		    for(int j = 0; j < width; j++)
+		    {
+			short val = myData[ i * _stride + j];
+			vecTest->push_back(val);	
+		    }
+		}
 
-	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	featureNeuron->tick();
-	std::cout << "TEST RESULT " << featureNeuron->getOutput() << std::endl ;
-    std::cout << "CURRENT STATE OF MACHINE 7" << std::endl ; 
-    std::cout << "REGION 0 " <<  visionSystem->Region(0)->getNumActiveNeurons() <<  " " << visionSystem->Region(0)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 1 " <<  visionSystem->Region(1)->getNumActiveNeurons() <<  " " << visionSystem->Region(1)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 2 " <<  visionSystem->Region(2)->getNumActiveNeurons() <<  " " << visionSystem->Region(2)->getNumInActiveNeurons() << std::endl ; 
-    std::cout << "REGION 3 " <<  visionSystem->Region(3)->getNumActiveNeurons() <<  " " << visionSystem->Region(3)->getNumInActiveNeurons() << std::endl ; 
+		visionSystem->resetLastRegion();
+		// RESET NETWORK 	
+		std::cout << " SETTING THE IMAGE TO THE FIRST REGION" << std::endl ; 
+		visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+		// Propogating the signal to the last layer. 
+		std::cout << "PROPOGATING SIGNAL FROM FIRST REGION TO LAST REGION  " << std::endl ; 
+		visionSystem->propogateSignal();
 
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+		// CREATING NEURON FROM THE ACTIVITY. 
+		neuron * featureNeuron = creator.conceptFromActivity(EXTEND_TILL_REGION -1 );
+		featureNeuron->setDebug(true);
+		featureNeuron->modulate();	 // SETTING UP TH EWEIGHT. 
+		// THIS IS THE NEURON CORREPONDING TO A CONCEPT. 
+		// HOW TO TEST THIS ? IF I SHOW THE IMAGE AGAIN , THEN THIS NEURON SHOULD FIRE.THIS IS A LAME TEST , BUT LET AS START SIMPLE .
 
-
-	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
-
-	std::cout << " INPUT 2 : " << std::endl ; 
-	for(unsigned int region_ = 0 ; region_ < EXTEND_TILL_REGION ; ++region_)
-	{
-		visionSystem->regionTick(region_);
-	}
-
-	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	featureNeuron->tick();
-// 	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	std::cout << "TEST RESULT " << featureNeuron->getOutput() << std::endl ;
-	
-	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
-
-	std::cout << " INPUT 3 : " << std::endl ; 
-	for(unsigned int region_ = 0 ; region_ < EXTEND_TILL_REGION ; ++region_)
-	{
-		visionSystem->regionTick(region_);
-	}
-
-	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	featureNeuron->tick();
-// 	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-	std::cout << "TEST RESULT " << featureNeuron->getOutput() << std::endl ;
+		printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
+		featureNeuron->tick();
 		
+		std::cout << " TICKING THE NEURON FORMED FOR THE LAST REGION  " << std::endl ; 
+		std::cout << "RESETING THE LAST REGION. " << std::endl ; 	
+		// RESETTING THE LAST REGION 
+		visionSystem->resetLastRegion();
+		std::cout << "TESTING NEURON " << featureNeuron->getOutput() << std::endl;
+
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+
+		 // NOW WE TEST THIS ON THE SAME IMAGE TO SEE IF THIS NEURON FIRES
+		std::cout << "MAPPING THE INPUT TO THE NETWORK AGAIN " << std::endl ; 
+		visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+		visionSystem->propogateSignal(); 
+		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+		std::cout << " SINGAL BEING PROPOGATED  TO THE LAST REGION " << std::endl ; 
+	  // 	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
+		featureNeuron->tick();
+		std::cout << "TEST RESULT " << featureNeuron->getOutput() << std::endl ;
+		
+
+		// WE ADD THE NEW NEURON INTO A VECTOR AND STORE IT THERE. THEN WE WILL LOOK AT WHAT THE OUTPUT OF THE VECTOR OF FEATURE NEURONS ARE TO EACH IMAGE. 
+		_sensitiveFeatures.push_back(featureNeuron);	
+		for(unsigned int feaNeu_ = 0 ; feaNeu_ < _sensitiveFeatures.size() ;++feaNeu_)
+		{
+			std::cout << " FEATURE NEURON : " << feaNeu_ << " OUTPUT : " <<  _sensitiveFeatures.at(feaNeu_)->getOutput() << " POTENTIAL : " << _sensitiveFeatures.at(feaNeu_)->getPotential() << std::endl  ; 
+		}
+	}
+
+
+			
 	return 0 ; 
 }
 
@@ -337,5 +266,36 @@ float meanVecShort(std::vector<short> *vec)
 }
 
 
+
+void printPathwayActivity(pathway * _vs , unsigned int _reg)
+{
+	std::cout << " PATHWAY ACTIVITY " << std::endl; 
+	for(unsigned int reg_ = 0 ; reg_ < _reg ; ++reg_)
+	{
+			 std::cout << "REGION " << reg_ <<  " " << _vs->Region(reg_)->getNumActiveNeurons() <<  " " << _vs->Region(reg_)->getNumInActiveNeurons() << std::endl ; 
+	}
+}
+
+std::vector<short> *  getBWImage( Mat * image)
+{
+		Mat im_gray;
+		cvtColor(*image,im_gray,CV_RGB2GRAY);
+		uint8_t *myData = im_gray.data;
+		int width = im_gray.cols;
+		int height = im_gray.rows;
+
+		std::vector<short>* vec = new std::vector<short>(0);
+		int _stride = im_gray.step;//in case cols != strides
+		for(int i = 0; i < height; i++)
+		{
+		    for(int j = 0; j < width; j++)
+		    {
+			short val = myData[ i * _stride + j];
+			vec->push_back(val);	
+		    }
+		}
+	return vec;  
+}
+		
 
 

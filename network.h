@@ -24,8 +24,8 @@ public:
     network(unsigned int nNeurons , unsigned int id  , unsigned int region );
     ~network();
 
-    bool systemTick();
-
+    void networkTick();
+    void networkReset(); 
     void addNeuron();
     void addNeuron(neuron * neu);
     neuron* Neuron(unsigned int pos);
@@ -33,18 +33,11 @@ public:
     void connect(int n1, int n2, double weight = 1);
     void setNeuronDebug(bool f);
     void setNetworkDebug(bool f);
-    void runSetup(bool t) { _run = t; };
-    void setStarter(bool t){_starter = t;};
     unsigned int getId() { return _id;};
+    
     //void sID(unsigned int a) {_id =a ; }
     //LEARNING BAD CODE> KEEP PRIVATE THINGS PRIVATE.			//TODO CORRECT IT.	  
         std::vector<neuron*>* getNeurons(){ return _neurons;};
-
-    bool  networkForceReset();
-    void  networkHoldValue();
-    void networkUnHoldValue();
-    void networkForceSilence(); 
-
 
 
 private:
@@ -53,10 +46,7 @@ private:
     unsigned int _regionid; 
 
 
-    bool _run;
-    bool _starter; // Indicates whether a starter neuron is being used.. 
     unsigned int _nNeurons;
-    unsigned int _startNeuron; // This neuron should only be ticked once..
     bool _networkTicked;
     std::vector<neuron*> * _neurons;
 
