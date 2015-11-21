@@ -16,10 +16,9 @@ class featureKeeper : error{
 		~featureKeeper();
 		inline static int maxPattern()  {return maxNumPattern;};
 		int isUniquePattern( feature * pat);
-		bool isUniquePattern_information(feature *pat, float thres , short bitsetUsed);
+		int isUniquePattern_information(feature * pat, float infoThres ,  short bitsetUsed);
 		bool insertPattern(feature * newPat);
 		int getFrequency(unsigned int patternIndex);
-		float similarityInformationContent(feature * pat , short  bitsetUsed); 
 		void neuronCreatedFromPattern(unsigned int patternIndex);
 
 		bool hasNeuronCreatedFromPatter(unsigned int patternIndex);

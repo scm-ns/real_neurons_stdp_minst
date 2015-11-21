@@ -10,42 +10,50 @@ bool featureKeeper::hasNeuronCreatedFromPatter(unsigned int patternIndex)
 {
 	return _structure->at(patternIndex)->added;
 }
-/*
- * This returns true is the dot product betwen the given pat 
- */
-bool featureKeeper::isUniquePattern_information(feature* pat , float thres , short bitsetUsed) // thres should be between 0 and 1 
-{
-	return similarityInformationContent(pat , bitsetUsed) > thres;  // If the  informationContent is larger than the thres then we return true ; 
-}
 
-/* BEWARE HIGH DOT PRODUCT MEANS HIGH SIMILARITY. 
- * LOW DOT PRODUCT MEANS LOW SIMILARITY ..  
+
+/* BEWARE HIGH XOR  MEANS HIGH SIMILARITY. 
+ * LOW XOR  PRODUCT MEANS LOW SIMILARITY ..   
+ *
+ * IF THIS VALUE IS GREATER THAN A PARTICULAR THRESHOLD THEN THE PATTERN IS NOT NEW OR IMPORTANT.  
+ * THIS VALUE LOW MEANS LOW INFORMATION CONTENT , MEANING LOW SIMILARITY. 
+ *  	// IDEA : 
+	//    IF THE SIMILARIT CONTENT OF TWO BIT SET ARE LARGER THAN THRES , THEN THERE IS A PATTERN ALMOST SIMILAR TO THIS NEW PATTER, 
+	//    HENCE NOT IMPORTANT . 
+	//
+ *
+ *
+ *
  */
-float featureKeeper::similarityInformationContent(feature * pat, short bitsetUsed) // bitsetUsed specifies the number of bits used .. Used to calculate the average. 
+int featureKeeper::isUniquePattern_information(feature * pat, float infoThres ,  short bitsetUsed) // bitsetUsed specifies the number of bits used .. Used to calculate the average. 
 {
-	// How to calculate information . Degree of surprise ? 
-	// We take the dot product of pat with each feature present in _structure . 
-	// Sum it all up and average ? issue suppose a vector has low  dot product with one 
-	// pattern and high dot product with other features . So should we include it  ? No 
-	// If the dot product is high then the feature is already being captured.  
-	// so average will be good.
 	std::bitset<maxNumPattern> temp;
-        float info = 0 ; 	
-	if (bitsetUsed == 0) return 0 ;  // HACK FOR NOW .. 
-	       for(auto *i : *_structure)
-	       {
-			 temp = i->pattern ^ pat->pattern; // Take the and .
-			info += temp.count() / bitsetUsed; // / maxNumPattern; // if temp.count() is high then almost similar , otherwise new information  
-				      			 // ^^^^^ This ensure that the dot product is less than one ? 
-	       }		      			// This might be problematic , most vectors are going to be short so division by 256 etc will not help ..  
-       if(_structure->size()== 0)
-       {
-		return 0 ;
-       }	       
-       else
-       {
-       		return info / _structure->size(); // Taking the average of the dot products.. 
-       }
+        float info = 0 ;  
+	if (bitsetUsed == 0) return -1 ;  // HACK FOR NOW .. 
+	// IDEA : 
+	// IF IN THIS LOOP , WE SEE EVEN ONE PATTERN WITH  NEW PATTERN WHERE THE SIMILARITY (XOR) / LENGTH IS MORE THAN THRES  THEN WE STOP THE LOOP AS THE INFORMATION IN THE PATTER IS NOT UNIQUE. 
+	// THIS WILL HELP IN OBTAINING A FASTER RESULT. 
+	// IF THE PATTERN IS UNQUE THEN WE WILL COME OUT OF THE LOOP AND RETURN TRUE.
+	     
+	for( unsigned int  pat_= 0 ; pat_ < _structure->size() ; ++pat_)
+	{
+		 temp = _structure->at(pat_)->pattern  ^ pat->pattern; // Take the xor .
+		 info = temp.count() / bitsetUsed; // / maxNumPattern; // if temp.count() is high then almost similar , otherwise new information  
+				      			 // ^^^^^ This ensure that the dot product is less than one ?	// This might be problematic , most vectors are going to be short so division by 256 etc will not help .. 
+			
+		if(__debug__)
+		{
+			std::cout << " INFORMATION IN PATTERN : " <<  info << std::endl ; 
+		}	
+
+		if(info >= infoThres)
+		{
+			// But since we see a pattern similar to this pattern , we increase the ferquency of this pattern ..
+			_structure->at(pat_)->frequency++;
+			return pat_ ; // We do not add this pattern to the featureKeeper. 
+		}
+	}
+	return -1 ; 
 }
 
 

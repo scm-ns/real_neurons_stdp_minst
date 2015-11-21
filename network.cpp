@@ -92,6 +92,8 @@ Allow the user to make changes to the neuron...
 
 neuron* network::Neuron(unsigned int id)
 {
+	// ASSERT WILL ONLY SHOW ERROR IF THE ASSERT FAILS. YOU ARE ASSERTING THAT SOMETHING IS TRUE.
+    assert((id < _neurons->size() ||  id > 0) && "ERROR : CALLING NON EXISTANT NEURON");
     return (_neurons->at(id));
 }
 

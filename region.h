@@ -5,6 +5,12 @@
 #include "network.h"
 #include "neuron.h"
 #include "error.cpp"
+
+//#define NDEBUG 
+// ^  UNCOMMENT TO DISABLE ASSERT
+#include <cassert>
+
+
 class region: public error
 {
 	public:

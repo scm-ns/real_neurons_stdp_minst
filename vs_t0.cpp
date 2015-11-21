@@ -199,7 +199,7 @@ int main(int argc , char ** argv)
 		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
 		// CREATING NEURON FROM THE ACTIVITY. 
 		neuron * featureNeuron = creator.conceptFromActivity(EXTEND_TILL_REGION -1 );
-		featureNeuron->setDebug(true);
+		featureNeuron->setDebug(false);
 		featureNeuron->modulate();	 // SETTING UP TH EWEIGHT. 
 		// THIS IS THE NEURON CORREPONDING TO A CONCEPT. 
 		// HOW TO TEST THIS ? IF I SHOW THE IMAGE AGAIN , THEN THIS NEURON SHOULD FIRE.THIS IS A LAME TEST , BUT LET AS START SIMPLE .
@@ -231,6 +231,7 @@ int main(int argc , char ** argv)
 		_sensitiveFeatures.push_back(featureNeuron);	
 		for(unsigned int feaNeu_ = 0 ; feaNeu_ < _sensitiveFeatures.size() ;++feaNeu_)
 		{
+			_sensitiveFeatures.at(feaNeu_)->tick();	
 			std::cout << " FEATURE NEURON : " << feaNeu_ << " OUTPUT : " <<  _sensitiveFeatures.at(feaNeu_)->getOutput() << " POTENTIAL : " << _sensitiveFeatures.at(feaNeu_)->getPotential() << std::endl  ; 
 		}
 	}

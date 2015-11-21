@@ -175,6 +175,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				}
 				temp->frequency = 1; // Handled in the isUniquePattern . This is not used. 
 				int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->isUniquePattern(temp);
+		//		int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->isUniquePattern_information(temp,_regionSimilarityThreshold,N_NEURONS_MERGED_FIRST_REGION);	
 		
 
 									if(__debug__)
@@ -188,7 +189,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 										else
 										{
 											std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->getFrequency(patternIndex) << std::endl;
-											std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
+										//	std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(i)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(i)->getNumNeurons())<< std::endl;
 										}
 										std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
 								//		std::cout << "NUMBER OF NEURONS IN NETWORK : " << _pathway->Region(_currentRegion)->Network(i)->getNumNeurons() << std::endl;
@@ -391,9 +392,8 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 				// neuron and if it is not , we don't.
 				temp->frequency = 1 ;  // Set the frequency of the feature vector . 
 				int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->isUniquePattern(temp);
-	
-			//std::cout << temp->pattern << std::endl;
-		//		std::cout << "PATTERN : " <<  temp->pattern << std::endl;
+
+			//	int patternIndex = _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->isUniquePattern_information(temp,_regionSimilarityThreshold,bitIndex);	
 												if(__debug__)
 													{
 														std::cout << temp->pattern << std::endl;
@@ -405,7 +405,7 @@ pathway* nfe_l::extend() { // RESET ANY INFORMATION FROM PREVIOUS EXTEND
 														else
 														{
 														std::cout << "FREQUENCY OF PATTERN : " << _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->getFrequency(patternIndex) << std::endl;
-														std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(feaNetworkIndex)->getNumNeurons())<< std::endl;
+										//				std::cout << "INFO OF PATTERN " <<  _patternInPathway->at(_currentRegion)->FeatureKeeper(feaNetworkIndex)->similarityInformationContent(temp,_pathway->Region(_currentRegion)->Network(feaNetworkIndex)->getNumNeurons())<< std::endl;
 														}
 														std::cout << "SEEN BEFORE : " << (patternIndex != -1 )<< std::endl;
 													}
