@@ -3,4 +3,7 @@
 *.swp
 *.o
 *.exe
-*.swo
+*.sw*
+*.jpg
+*.png
+*.JPEG

@@ -49,8 +49,8 @@ public:
 
 private:
 	// IDENTIFICATION 
-   const unsigned int _id; // ID OF THE NETWORK. HELPFUL WHEN USING MULTIPLE NETWORKS. 
-   const unsigned int _regionid; 
+   unsigned int _id; // ID OF THE NETWORK. HELPFUL WHEN USING MULTIPLE NETWORKS. 
+   unsigned int _regionid; 
 
 
     unsigned int _nNeurons;
