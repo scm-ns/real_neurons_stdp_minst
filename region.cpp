@@ -38,7 +38,7 @@ void region::regionTick()
 network* region::Network(unsigned int pos)
 {
 
-	assert((pos >= _structure->size() && pos < 0 ) && "ERROR : CALLING NON EXISTANT NETWORK" ) ;  
+	assert(!(pos >= _structure->size() && pos < 0 ) && "ERROR : CALLING NON EXISTANT NETWORK" ) ;  
 	return _structure->at(pos); // THE CALLER SHOULD BE SENSIBLE IN CALLING THIS.. 
 }
 
