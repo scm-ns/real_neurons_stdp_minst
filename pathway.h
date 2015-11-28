@@ -62,8 +62,9 @@ class pathway : public error{
        	       */
 		pathway(unsigned int hSize , unsigned int vSize,unsigned int n_NeuronInBaseUnitVertical, unsigned int n_NeuronInBaseUnitHorizonal);
 		region * Region(unsigned int region);
-
-		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride ,short threshold , std::vector<short> *N);
+	
+		// CHANGED IN NOV 28TH FOR THE MINST DATA SET. threhold short -> float
+		void mapVectorNeuron(unsigned int width , unsigned int height , unsigned int stride , float threshold , std::vector<short> *N);
 
 		void addRegion(unsigned int nNetworks );
 		void setID(int unsigned id){_id = id;};

@@ -26,7 +26,7 @@ pathway::pathway(unsigned int hSize , unsigned int vSize, unsigned int n_NeuronI
  * 
  *
  */
-void pathway::mapVectorNeuron(unsigned int horizonal , unsigned int vertical , unsigned int stride ,short threshold , std::vector<short> *N)
+void pathway::mapVectorNeuron(unsigned int horizonal , unsigned int vertical , unsigned int stride ,float threshold , std::vector<short> *N)
 {
 unsigned int networkHorizontalPos = 0 ;
 unsigned int neuronHorizontalPos = 0 ;
@@ -48,9 +48,6 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
            error::debug("NUMBER OF ELEMENTS IN VECTOR");error::debug(N->size());
 	}
 
-
-
-
 // GO THROUGH EACH ELEMENTS IN THE VECTOR AND MAP IT TO NEURONS. 
 	short val = 0 ; 
 	for(unsigned int i = 0; i < horizonal; i++)
@@ -71,10 +68,9 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
 			if(__debug__)
 			{
 
-			//	debugN("Inserting element");
+			   debugN("Inserting element");
 			}
 			val = N->at(i*stride + j);
-
 
 		}
 	//if(__debug__)

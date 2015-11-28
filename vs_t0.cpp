@@ -14,8 +14,8 @@
 #include "nfe_l.h"
 #include "pathway.h"
 #include "mdl.h"
-#include <opencv2/opencv.hpp>
 #include "crn.h"
+#include "MinstReader.h"
 
 
 
@@ -24,21 +24,27 @@
 
 #define STEP 100
 //#define N_IMAGES 	// N_IMAGES IS NOT REQUIRED. 
-#define N_TEST_IMAGES 0
 
 
-#define FOVEA_HEIGHT 300
-#define FOVEA_WIDTH 300
+#define FOVEA_HEIGHT 27
+#define FOVEA_WIDTH 27
 #define FOVEA_STRIDE FOVEA_WIDTH - 1
 #define nNEURONS_HORIZONTAL 3 
 #define nNEURONS_VERTICAL 3
 
+#define	IMAGE_WIDTH 28	 
+#define IMAGE_HEIGHT 28
+#define TRAIN_IMAGES 6000
+#define TEST_IMAGES 100
+#define WIDTH_IGNORED IMAGE_WIDTH - FOVEA_WIDTH 
+#define HEIGHT_IGNORED IMAGE_HEIGHT - FOVEA_HEIGHT
+	// IN ORDER TO ENSURE PROPER MAPPING INTO 3*3 WE IGNORE THE EDGES
 
-#define EXTEND_TILL_REGION 4
 
+#define EXTEND_TILL_REGION 5
+const char * FILENAME = "train-images.idx3-ubyte";
+const char * TEST_FILENAME = "t10k-images.idx3-ubyte";
 
-
-using namespace cv ; 
 
 void printRegion(std::vector<bool>* act_);
 
@@ -46,24 +52,14 @@ float meanVecShort(std::vector<short> *vec);
 
 void printPathwayActivity(pathway * _vs , unsigned int reg);
 
-std::vector<short> *  getBWImage( Mat * image);
 
-int main(int argc , char ** argv)
+int main()
 {
-	printf("PROGRAM STARTS");
-    if ( argc < 2 )
-    {
-        printf("usage: DisplayImage.out <Image_Path1> <Image_Path2> <Image_Path3> ... \n");
-        return -1;
-    }
+      printf("PROGRAM STARTS");
 
-	std::vector<Mat> images(0);
-    for ( int i = 1 ; i < argc; i++)
-    {
-	 Mat ima = imread(argv[i],1);
-	images.push_back(ima);
-    }
-   
+	  
+
+
   // SETTING UP THE SINGLE PATHWAY THAT WILL BE USED IN THIS SETION AND LINKING IT WITH THE 
   // nfe_l 
    	pathway* visionSystem = new pathway(FOVEA_WIDTH,FOVEA_HEIGHT,nNEURONS_HORIZONTAL ,nNEURONS_VERTICAL );
@@ -72,120 +68,99 @@ int main(int argc , char ** argv)
 
    
    
-    for (unsigned int i = 0 ; i < images.size() - N_TEST_IMAGES ; i++) // Saving the last N_TEST_IMAGES for testing .. 
-    {
-	    if ( !images.at(i).data )
-	    {
-		printf("No image data \n");
-		return -1;
-	    }
-		Mat im_gray;
-		cvtColor(images[i],im_gray,CV_RGB2GRAY);
-		uint8_t *myData = im_gray.data;
-		int width = im_gray.cols;
-		int height = im_gray.rows;
-
+		//POOR CODE . MAKE RIGHT
 		std::vector<short>* vec = new std::vector<short>(0);
-		int _stride = im_gray.step;//in case cols != strides
-		for(int i = 0; i < height; i++)
+		unsigned char *data = readMinstImages(FILENAME);	
+		for(unsigned int idx_ = 0 ; idx_ < IMAGE_HEIGHT * IMAGE_WIDTH * TRAIN_IMAGES; ++idx_) // USING ON 6000 IMAGES
 		{
-		    for(int j = 0; j < width; j++)
-		    {
-			short val = myData[ i * _stride + j];
-			vec->push_back(val);	
-		    }
+			vec->push_back((short)data[idx_]);
 		}
 
 
-		// NOW WE CREATE THE SECTIONS THROUGH WHICH WE WANT TO MOVE .. 
 
-	//	visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,mean(im_gray).val[0] ,vec);
-	//	visionSystem->regionTick(0);
-			
-
-		for(unsigned int region = 1 ; region < EXTEND_TILL_REGION ; region++)
+		for(unsigned int idRegion_ = 1 ; idRegion_ < EXTEND_TILL_REGION ; ++idRegion_)
 		{
-			std::cout << "STARING TO EXTEND REGION" << region   << std::endl  ; 
+			std::cout << "STARING TO EXTEND REGION" << idRegion_   << std::endl  ; 
 
 
-			// Now we go over a new portion of the image .. 
-			for(int imageIndexVertical = 1 ; imageIndexVertical < height - FOVEA_HEIGHT ; imageIndexVertical+=STEP)
-			{	
-				for(int imageIndexHorizontal  =1 ; imageIndexHorizontal < width - FOVEA_WIDTH; imageIndexHorizontal+=STEP)	// GOES OVER THE IMAGE
+				// GO OVER THE TRAIN IAMGES
+			for(unsigned int idImg_ = 0 ; idImg_ < TRAIN_IMAGES ; ++idImg_)
+			{
+				// NO CONECPT OF MOVING ON THE IMAGE. ENTIRE IMAGE IS MAPPED
+				std::vector<short> * vecFovea = new std::vector<short>(0);
+				unsigned int imageOffset = idImg_ * IMAGE_WIDTH * IMAGE_HEIGHT  ; 		
+				for(unsigned int idx_ = 0 ; idx_ < FOVEA_HEIGHT ; ++idx_) // rows
 				{
-					std::cout << "FOVEA FOCUSING ON A NEW PATTERN" << std::endl;
-					std::vector<short> * vecFovea = new std::vector<short>(0);
-					for(int x = imageIndexVertical ; x < FOVEA_HEIGHT + imageIndexVertical; x++) 				// GOES OVER THE FOVEA PART OF IMAGE
+					for(unsigned int idxx_ = 0 ; idxx_ < FOVEA_WIDTH ; ++idxx_) // col
 					{
-						for(int y = imageIndexHorizontal ; y < FOVEA_WIDTH + imageIndexHorizontal ; y++)
-						{
-						    vecFovea->push_back(vec->at( x * (FOVEA_STRIDE) + y)); // This creates a vector with the same size as fovea
-						}
-					}
-				
-						
-			        visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecFovea) ,vecFovea); 
-				printPathwayActivity(visionSystem,region);
-				visionSystem->propogateSignalTo(region);	 // THIS BRINGS THE SIGNAL FROM THE FIRST LAYER TO THE LAST LAYER.. 
-				printPathwayActivity(visionSystem,region);
+						vecFovea->push_back(	(short)vec->at(	  imageOffset + (  (FOVEA_HEIGHT + HEIGHT_IGNORED)  * idx_ + idxx_  )	)     ); 
+					}	
+				}
+
+				// CONVERT THE IMAGE INTO NORMAL FORMAT 		
+				//printMinstImg(vecFovea,FOVEA_HEIGHT,FOVEA_WIDTH);
+				convertLeToBW(vecFovea,(float)meanVecShort(vecFovea));
+
+			        visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1, 0.5 ,vecFovea); 
+				printPathwayActivity(visionSystem,idRegion_);
+				visionSystem->propogateSignalTo(idRegion_);	 // THIS BRINGS THE SIGNAL FROM THE FIRST LAYER TO THE LAST LAYER.. 
+				printPathwayActivity(visionSystem,idRegion_);
 									// EXTEND WILL TRY TO EXTRACT PATTERNS FROM THIS LAST LAYER. 
 
-				printPathwayActivity(visionSystem,region);
+				printPathwayActivity(visionSystem,idRegion_);
 				neuronFrameExtended.extend();
 				// AFTER THE LAST LAYER HAS BEEN USED FOR PATTERN EXTRACTION . RESET IT FOR FUTURE USE. 
 
-				visionSystem->Region(region - 1)->regionReset(); // DO NOT USE RESET LAST REGION. THAT IS WRONG. IN THIS FOR LOOP < WE MOVE FROM ONE REGION TO ANOHTER , THEN AGAIN GO BACK
-				printPathwayActivity(visionSystem,region);
-		        	}
-				std::cout << "FOEAVE MOVING TO A NEW LOCATION ON THE IMAGE" << std::endl;
-			}
-				
-			neuronFrameExtended.moveToRegion(region);
-			
-			
-			if(region == EXTEND_TILL_REGION - 1) // EXTENDED TILL THE UPPERMOST REGION , NOW MOVING BACK TO 0 FOR USE WITH ANOTHER IMAGE
-			{
-				neuronFrameExtended.moveToBase();
-			}	
+				visionSystem->Region(idRegion_ - 1)->regionReset(); // DO NOT USE RESET LAST REGION. THAT IS WRONG. IN THIS FOR LOOP < WE MOVE FROM ONE REGION TO ANOHTER , THEN AGAIN GO BACK
+				printPathwayActivity(visionSystem,idRegion_);
+				std::cout << "FOEAVE MOVING TO A NEW IMAGE" << std::endl;
+					
 
-		}
-		
-		std::cout << "#################################################################### MOVING TO NEXT IMAGE ###################################################################################################################" <<std::endl;
-    }
-   
+				// PREVENT MEMORY LEAKAGE
+				delete vecFovea;
+			}			
+			neuronFrameExtended.moveToRegion(idRegion_); // MOVE TO THE NEXT REGION
+		}			
+	
 
- std::cout << "###################################################################### TESTING PAHSE ################################################################################################" << std::endl;
+	// DELETE THE VEC	
+	delete vec;
+	delete data;
+
+
+
+std::cout << "###################################################################### TESTING PAHSE ################################################################################################\n";
 
 	 // TESTING IMAGE IS CURRENTLY KEPT AS THE SIZE OF FOVEA . 	
 
-//	mdl corrector(visionSystem);  // DONE WITHIN NFE_L NOW. 
-//	corrector.modulate();	
-	
  	std::vector<neuron*> _sensitiveFeatures ; 
 
 	crn creator(visionSystem);	
-	while(1)
+
+	std::vector<short>* vecTest = new std::vector<short>(0);
+	unsigned char *dataTest = readMinstImages(TEST_FILENAME);	
+	for(unsigned int idx_ = 0 ; idx_ < IMAGE_HEIGHT * IMAGE_WIDTH * TEST_IMAGES; ++idx_) // USING 100 IMAGES
+	{
+		vecTest->push_back((short)dataTest[idx_]);
+	}
+
+	while(1) // USER DECIDES TO LOOK WHETHER TO GO TO THE NEXT IMAGE
 	{
 		std::string testImageName; 
 		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
-		std::cout << " ENTER NAME OF TEST IMAGE : " ; std::cin >> testImageName;  
-		Mat im = imread(testImageName,1);	
-		Mat im_gray ; 
-		cvtColor(im, im_gray, CV_RGB2GRAY);
-		uint8_t *myData = im_gray.data;
-		int width = im_gray.cols;
-		int height = im_gray.rows;
+		std::cout << " CONTINUE ? : " ; std::cin >> testImageName;  
 
-		std::vector<short>* vecTest = new std::vector<short>(0);
-		int _stride = im_gray.step;//in case cols != strides
-		for(int i = 0; i < height; i++)
+		std::vector<short> * vecTest = new std::vector<short>(0);
+			
+		for(unsigned int idx_ = 0 ; idx_ < FOVEA_HEIGHT ; ++idx_) // rows
 		{
-		    for(int j = 0; j < width; j++)
-		    {
-			short val = myData[ i * _stride + j];
-			vecTest->push_back(val);	
-		    }
+			for(unsigned int idxx_ = 0 ; idxx_ < FOVEA_WIDTH ; ++idxx_) // col
+			{
+				vecTest->push_back(	(short)vec->at(	(FOVEA_HEIGHT + HEIGHT_IGNORED)	* idx_ + idxx_	)	); 
+			}	
 		}
+
+		convertLeToBW(vecTest,(float)meanVecShort(vecTest));
 
 		visionSystem->resetLastRegion();
 		// RESET NETWORK 	
@@ -276,27 +251,5 @@ void printPathwayActivity(pathway * _vs , unsigned int _reg)
 			 std::cout << "REGION " << reg_ <<  " " << _vs->Region(reg_)->getNumActiveNeurons() <<  " " << _vs->Region(reg_)->getNumInActiveNeurons() << std::endl ; 
 	}
 }
-
-std::vector<short> *  getBWImage( Mat * image)
-{
-		Mat im_gray;
-		cvtColor(*image,im_gray,CV_RGB2GRAY);
-		uint8_t *myData = im_gray.data;
-		int width = im_gray.cols;
-		int height = im_gray.rows;
-
-		std::vector<short>* vec = new std::vector<short>(0);
-		int _stride = im_gray.step;//in case cols != strides
-		for(int i = 0; i < height; i++)
-		{
-		    for(int j = 0; j < width; j++)
-		    {
-			short val = myData[ i * _stride + j];
-			vec->push_back(val);	
-		    }
-		}
-	return vec;  
-}
-		
 
 
