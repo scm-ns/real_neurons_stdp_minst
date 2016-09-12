@@ -1,7 +1,7 @@
 #include "region.h"
 
 
-region::region(unsigned int id,   unsigned int nNetworks, unsigned int nNeuronsNetwork):error(false)
+region::region(unsigned int id,   unsigned int nNetworks, unsigned int nNeuronsNetwork):error(true)
 {
 	if(__debug__){debugN("CREATED REGION");};
 	_structure = new std::vector<network*>(nNetworks); 
@@ -21,7 +21,13 @@ region::~region()
 	{
 		debugN("Deleting Region"); debug(_id);
 	}
+	for(unsigned int idx_ =0  ; idx_ < _structure->size() ; ++idx_)
+	{
+		delete _structure->at(idx_);
+		_structure->at(idx_) = NULL; 
+	}
 	delete _structure; // delete the vector . Will this work . Search ? 
+	_structure = NULL; 
 }
 
 // Copy Constructor ? Try implementing. These structres might be copied by the std::vector.

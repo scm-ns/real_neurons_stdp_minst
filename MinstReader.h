@@ -3,6 +3,20 @@
 #include <cassert>
 #include <vector>
 
+// CONSTANT 
+#define	IMAGE_WIDTH 28	 
+#define IMAGE_HEIGHT 28
+#define TRAIN_IMAGES 30000
+#define TEST_IMAGES 1000
+
+// FILENAMES
+const char * FILENAME = "train-images.idx3-ubyte";
+const char * TEST_FILENAME = "t10k-images.idx3-ubyte";
+
+const char * LABEL_TEST_FILENAME = "t10k-labels.idx1-ubyte";
+
+
+
 unsigned int readIntFromIfStream(std::ifstream& __readBin);
 unsigned int get4BytesFromFile(const char * __filename , std::ifstream& __readBin);
 unsigned char readByteFromIfStream(std::ifstream& __readBin); // NO NEED TO OPEN AGAIN AND AGAIN
@@ -113,6 +127,28 @@ unsigned char * readMinstImages(const char *__filename)
 	std::cout << "#BYTES : " << byteSize << "\n"  ; 
 	readBin.seekg(currLine,std::ios::beg); // TO BEG 
 
+	char *data = new char[byteSize + 1]; // +1 to put \0
+	readBin.read(data , byteSize);
+	data[byteSize] = '\0';
+	//print Data 
+	return reinterpret_cast<unsigned char *>(data);  	
+}
+
+
+unsigned char *readMinstLabels(const char *__filename)
+{
+	std::ifstream readBin;
+	readBin.open(__filename,std::ios::binary | std::ios::in );
+	int magic = readIntFromIfStream(readBin) ;
+	assert(magic == 2049 && "MAGIC NUMBER WRONG");	
+	int numLabels = readIntFromIfStream(readBin);
+	std::cout << "NUM LABELS :" << numLabels << "\n";
+
+	unsigned int currLine = readBin.tellg(); 
+	readBin.seekg(0,std::ios::end);// GO TO END OF FILE
+	unsigned int byteSize = readBin.tellg();
+	std::cout << "#BYTES : " << byteSize << "\n"  ; 
+	readBin.seekg(currLine,std::ios::beg); // TO BEG 
 	char *data = new char[byteSize + 1]; // +1 to put \0
 	readBin.read(data , byteSize);
 	data[byteSize] = '\0';

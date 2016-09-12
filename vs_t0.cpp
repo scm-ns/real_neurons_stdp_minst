@@ -34,8 +34,8 @@
 
 #define	IMAGE_WIDTH 28	 
 #define IMAGE_HEIGHT 28
-#define TRAIN_IMAGES 6000
-#define TEST_IMAGES 100
+#define TRAIN_IMAGES 30000
+#define TEST_IMAGES 1000
 #define WIDTH_IGNORED IMAGE_WIDTH - FOVEA_WIDTH 
 #define HEIGHT_IGNORED IMAGE_HEIGHT - FOVEA_HEIGHT
 	// IN ORDER TO ENSURE PROPER MAPPING INTO 3*3 WE IGNORE THE EDGES
@@ -45,6 +45,7 @@
 const char * FILENAME = "train-images.idx3-ubyte";
 const char * TEST_FILENAME = "t10k-images.idx3-ubyte";
 
+const char * LABEL_TEST_FILENAME = "t10k-labels.idx1-ubyte";
 
 void printRegion(std::vector<bool>* act_);
 
@@ -63,7 +64,7 @@ int main()
   // SETTING UP THE SINGLE PATHWAY THAT WILL BE USED IN THIS SETION AND LINKING IT WITH THE 
   // nfe_l 
    	pathway* visionSystem = new pathway(FOVEA_WIDTH,FOVEA_HEIGHT,nNEURONS_HORIZONTAL ,nNEURONS_VERTICAL );
-//	visionSystem->setDebug(false);
+	visionSystem->setDebug(false);
 	nfe_l neuronFrameExtended(visionSystem);
 
    
@@ -143,6 +144,10 @@ std::cout << "##################################################################
 	{
 		vecTest->push_back((short)dataTest[idx_]);
 	}
+	unsigned int idImg_ = 0 ;
+       
+        // LABELS 
+	unsigned char *dataTestLabels = readMinstLabels(LABEL_TEST_FILENAME);	
 
 	while(1) // USER DECIDES TO LOOK WHETHER TO GO TO THE NEXT IMAGE
 	{
@@ -152,15 +157,21 @@ std::cout << "##################################################################
 
 		std::vector<short> * vecTest = new std::vector<short>(0);
 			
+		unsigned int imageOffset = idImg_ * IMAGE_WIDTH * IMAGE_HEIGHT  ; 		 // ENSURE THAT WE GO OVER THE NEXT IMAGE
+		++idImg_;
+
 		for(unsigned int idx_ = 0 ; idx_ < FOVEA_HEIGHT ; ++idx_) // rows
 		{
 			for(unsigned int idxx_ = 0 ; idxx_ < FOVEA_WIDTH ; ++idxx_) // col
 			{
-				vecTest->push_back(	(short)vec->at(	(FOVEA_HEIGHT + HEIGHT_IGNORED)	* idx_ + idxx_	)	); 
+				vecTest->push_back(	(short)vec->at(	imageOffset +  (FOVEA_HEIGHT + HEIGHT_IGNORED)	* idx_ + idxx_	)	); 
 			}	
 		}
 
 		convertLeToBW(vecTest,(float)meanVecShort(vecTest));
+
+
+		printMinstImg(vecTest,27,27);
 
 		visionSystem->resetLastRegion();
 		// RESET NETWORK 	
@@ -171,7 +182,7 @@ std::cout << "##################################################################
 		std::cout << "PROPOGATING SIGNAL FROM FIRST REGION TO LAST REGION  " << std::endl ; 
 		visionSystem->propogateSignal();
 
-		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
+	//	printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
 		// CREATING NEURON FROM THE ACTIVITY. 
 		neuron * featureNeuron = creator.conceptFromActivity(EXTEND_TILL_REGION -1 );
 		featureNeuron->setDebug(false);
@@ -179,19 +190,19 @@ std::cout << "##################################################################
 		// THIS IS THE NEURON CORREPONDING TO A CONCEPT. 
 		// HOW TO TEST THIS ? IF I SHOW THE IMAGE AGAIN , THEN THIS NEURON SHOULD FIRE.THIS IS A LAME TEST , BUT LET AS START SIMPLE .
 
-		printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
-		featureNeuron->tick();
+	//	printRegion(visionSystem->Region(EXTEND_TILL_REGION - 1)->getRegionActivity() ); 
+		//featureNeuron->tick();
 		
-		std::cout << " TICKING THE NEURON FORMED FOR THE LAST REGION  " << std::endl ; 
-		std::cout << "RESETING THE LAST REGION. " << std::endl ; 	
+	//	std::cout << " TICKING THE NEURON FORMED FOR THE LAST REGION  " << std::endl ; 
+	//	std::cout << "RESETING THE LAST REGION. " << std::endl ; 	
 		// RESETTING THE LAST REGION 
 		visionSystem->resetLastRegion();
-		std::cout << "TESTING NEURON " << featureNeuron->getOutput() << std::endl;
+	//	std::cout << "TESTING NEURON " << featureNeuron->getOutput() << std::endl;
 
 		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
 
 		 // NOW WE TEST THIS ON THE SAME IMAGE TO SEE IF THIS NEURON FIRES
-		std::cout << "MAPPING THE INPUT TO THE NETWORK AGAIN " << std::endl ; 
+	//	std::cout << "MAPPING THE INPUT TO THE NETWORK AGAIN " << std::endl ; 
 		visionSystem->mapVectorNeuron(FOVEA_WIDTH,FOVEA_HEIGHT,FOVEA_WIDTH - 1,meanVecShort(vecTest) ,vecTest); 
 		printPathwayActivity(visionSystem,EXTEND_TILL_REGION);
 		visionSystem->propogateSignal(); 
@@ -206,8 +217,9 @@ std::cout << "##################################################################
 		_sensitiveFeatures.push_back(featureNeuron);	
 		for(unsigned int feaNeu_ = 0 ; feaNeu_ < _sensitiveFeatures.size() ;++feaNeu_)
 		{
-			_sensitiveFeatures.at(feaNeu_)->tick();	
-			std::cout << " FEATURE NEURON : " << feaNeu_ << " OUTPUT : " <<  _sensitiveFeatures.at(feaNeu_)->getOutput() << " POTENTIAL : " << _sensitiveFeatures.at(feaNeu_)->getPotential() << std::endl  ; 
+			float tempPotential = _sensitiveFeatures.at(feaNeu_)->tick();	
+			std::cout << " FEATURE NEURON : " << feaNeu_ << " OUTPUT : " <<  _sensitiveFeatures.at(feaNeu_)->getOutput() << " POTENTIAL : " << tempPotential 
+				  << " TEST LABEL : " << (short)dataTestLabels[feaNeu_] << std::endl ;
 		}
 	}
 
@@ -248,7 +260,8 @@ void printPathwayActivity(pathway * _vs , unsigned int _reg)
 	std::cout << " PATHWAY ACTIVITY " << std::endl; 
 	for(unsigned int reg_ = 0 ; reg_ < _reg ; ++reg_)
 	{
-			 std::cout << "REGION " << reg_ <<  " " << _vs->Region(reg_)->getNumActiveNeurons() <<  " " << _vs->Region(reg_)->getNumInActiveNeurons() << std::endl ; 
+			 std::cout << "REGION " << reg_ <<  " " << _vs->Region(reg_)->getNumActiveNeurons() <<  " " << _vs->Region(reg_)->getNumInActiveNeurons() <<  " " 
+				 << _vs->Region(reg_)->getNumNetworks() << std::endl ; 
 	}
 }
 

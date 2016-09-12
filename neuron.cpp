@@ -85,7 +85,7 @@ neuron& neuron::operator=(const neuron &a)
 }
 
 
-void neuron::tick()
+float neuron::tick()
 {
 
 					  if(__debug__)
@@ -101,7 +101,7 @@ if(_sense)
 					{	
 						std::cout << "NEURON -> TICK -> SENSE  " << "ID -> " << _regionid << " : " << _networkid << " : " << _id   << " OUTPUT " << _outputBuffer <<  std::endl;  
 					}
-	return ; 						
+	return 0 ; 						
 }
 
 
@@ -130,7 +130,7 @@ if(_sense)
 			    if(__debug__)
 				std::cout << "POTENTIAL : " << _potential << std::endl; 
 
-
+    float temp = _potential ;
     // intially Simple.
     if (_potential >= _threshold)
     {
@@ -164,7 +164,8 @@ if(_sense)
 				   {
 					std::cout <<  "NEURON -> " << "ID -> " << _regionid << " : " << _networkid << " : " << _id  << " TICK ACTIVITY HISTORY : " << _activity << std::endl;
 				   };
-
+	
+	return temp ;
 
 }
 

@@ -73,12 +73,6 @@ unsigned int n_networkVertical = _vSize/_vNetworkSize;
 			val = N->at(i*stride + j);
 
 		}
-	//if(__debug__)
-	//{
-	//   error::debugN("MAPPING VECTOR VALUES TO NEURONS");
-	//   error::debug("NUMBER OF ELEMENTS IN VECTOR");error::debug(N);
-	//}
-
 	// FIRST MAP TO NETWORK ,  THEN TO THE NEURON	
 		networkHorizontalPos = j /_hNetworkSize;
 		networkVerticalPos = i / _vNetworkSize;

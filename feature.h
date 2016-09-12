@@ -4,7 +4,7 @@
 
 #include <bitset>
 
-#define maxNumPattern 480
+#define maxNumPattern 1000
 
 class  feature{ // Feature Extractor
 	public:

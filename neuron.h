@@ -9,7 +9,7 @@
 */
 
 #define ACTIVITY 40
-#define VAL_FOR_FIRING 1.25
+#define VAL_FOR_FIRING 1
 #define MIN_THRES_DEFAULT_VAL 0.1 // IF WE ARE NO POSITIVE CONNECTIONS, THEY WE PUT A SMALL
 			//WEIGHT TO PREVENT IT FROM BEIGN INF. 
 
@@ -36,7 +36,7 @@ public:
     ~neuron();
     neuron(const neuron &n);
     neuron & operator=(const neuron &n);
-    void tick(); 	  // Updates the state of the system.. Simulate passage of time..
+    float tick(); 	  // Updates the state of the system.. Simulate passage of time..
   			  // This signal is send to all neurons to move forward in time..
 			// THIS WILL ALWAYS WORK. 
     void setInputneuron(neuron* _neuron, double _weight = 1);
